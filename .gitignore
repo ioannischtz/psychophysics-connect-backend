@@ -1,0 +1,16 @@
+# 3rd party
+node_modules
+npm-debug.log
+
+# Local development env 
+*.env
+*.dev
+
+# Build files
+build
+
+# temp
+temp
+.DS_Store
+
+

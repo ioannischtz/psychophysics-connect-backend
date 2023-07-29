@@ -1,0 +1,80 @@
+DB: models | daos
+
+models: Schema structure of database entities
+daos: Data Access Objects: Direct interfacing with the database
+
+Main Controller Actions:
+
+find
+findOne
+create
+update
+delete
+
+
+Execution Flow:
+
+Route -> Middleware -> Policies -> Controlers -> Services
+
+
+Middleware: Extra logic, wrapping, customization | GLOBAL
+
+Policies: Authorization, Validation
+
+Controllers:  
+            -> Receive REQUEST 
+            -> Delegate to a Service
+            -> Respond with Service's result to the Requester
+
+Services: 
+Domain specific reusable logic, they get called by controllers
+
+--------------------------------------------------------------
+
+bodyMiddleware:
+
+multipart / urlencoded
+FileMimeType
+json/form/text Limit
+setEncoding
+
+------------------------
+compressionMiddleware:
+
+brotli / gzip
+
+------------------------
+corsMiddleware:
+
+origin
+maxAge
+credentials
+methods
+headers
+
+------------------------
+errorsMiddleware:
+
+
+
+------------------------
+loggerMiddleware:
+
+
+------------------------
+queryMiddleware:
+qs ??
+
+------------------------
+responsetimeMiddleware
+X-Response-Time ms
+
+------------------------
+staticMiddleware
+
+------------------------
+securityMiddleware
+
+------------------------
+sessionMiddleware
+cookies etc
