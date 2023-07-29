@@ -19,4 +19,6 @@ export const experimentSessionSchemaWithId = experimentSessionBaseSchema.merge(
 
 export type ExperimentSession = z.infer<typeof experimentSessionSchemaWithId>;
 
-export default { createExperimentSession: experimentSessionBaseSchema };
+export default {
+  createExperimentSession: experimentSessionBaseSchema,
+};
