@@ -15,10 +15,18 @@
 
 - [x] User
 - [x] ExperimentSession
+<<<<<<< HEAD
 - [ ] Experiment
 - [ ] Response
 - [ ] Stimulus
 - [ ] PerceptualDimension
+=======
+- [x] Experiment
+- [x] MediaAsset
+- [x] Response
+- [x] Stimulus
+- [x] PerceptualDimension
+>>>>>>> main
 - [ ] PerceptualCoordinate (derive on client-side = Response at each dimension)
 - [ ] PerceptualSpace (derive on client-side = Responses at each dimension for
       all stimuli of experiment session)
@@ -27,8 +35,30 @@
       `independent variable` and `dependent variable`. Need to study the
       relevant psychophysics literature and nomenclature.
 
+<<<<<<< HEAD
 ## CONTROLLERS
 
+=======
+## DB - DAOs
+
+- [ ] User
+- [ ] ExperimentSession
+- [ ] Experiment
+- [ ] MediaAsset
+- [ ] Response
+- [ ] Stimulus
+- [ ] PerceptualDimension
+
+## CONTROLLERS
+
+## ROUTES
+
+- [x] Users
+- [ ] Dashboard
+- [ ] ExperimentSession
+- [ ] MediaAssets
+
+>>>>>>> main
 ## SERVICES
 
 ## TESTS
