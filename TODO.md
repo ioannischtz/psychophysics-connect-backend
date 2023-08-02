@@ -30,6 +30,11 @@
 
 ## DB - DAOs
 
+!! - [ ] when returning a Promise, see if you have to await on the return
+
+- [ ] FIELDS constants: maybe return \_id as well? or is it returned
+      automatically by default?
+
 - [ ] User
 - [ ] ExperimentSession
 - [ ] Experiment

@@ -7,13 +7,17 @@ export const COLLECTION_NAME = "experiment_sessions";
 
 const experimentSessionSchema = new Schema<ExperimentSession>(
   {
-    subject: { type: Schema.Types.ObjectId, ref: "User", required: true }, // Reference to User model (Role=subject)
+    subject: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    }, // Reference to User model (Role=subject)
     experiment: {
       type: Schema.Types.ObjectId,
       ref: "Experiment",
       required: true,
     }, // Reference to Experiment model
-    completed: { type: Schema.Types.Boolean, required: true },
+    isCompleted: { type: Schema.Types.Boolean, required: true },
     experiment_step: { type: Schema.Types.Number, required: true },
     stimuli_order: [{ type: Schema.Types.Number, required: true }],
     responses: [responseSchema],
@@ -23,6 +27,13 @@ const experimentSessionSchema = new Schema<ExperimentSession>(
     versionKey: true,
   },
 );
+
+experimentSessionSchema.index({ subject: 1 });
+experimentSessionSchema.index({ experiment: 1 });
+experimentSessionSchema.index({ experiment: 1, isCompleted: 1 });
+experimentSessionSchema.index({ subject: 1, experiment: 1 });
+experimentSessionSchema.index({ _id: 1, isCompleted: 1 });
+experimentSessionSchema.index({ isCompleted: 1 });
 
 export const ExperimentSessionModel = model<ExperimentSession>(
   DOCUMENT_NAME,
