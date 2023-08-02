@@ -17,7 +17,9 @@ const userSchema = new Schema<User>(
       type: Schema.Types.String,
       trim: true,
       unique: true,
+      sparse: true, // allow null
       required: true,
+      select: false,
     },
     password: {
       type: Schema.Types.String,
@@ -28,6 +30,7 @@ const userSchema = new Schema<User>(
       type: Schema.Types.String,
       enum: ["subject", "experimenter"],
       required: true,
+      select: false,
     },
   },
   {
@@ -36,12 +39,14 @@ const userSchema = new Schema<User>(
   },
 );
 
-userSchema.pre("save", async function(next) {
+userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
   this.password = await bcrypt.hash(this.password, 10);
 });
+
+userSchema.index({ email: 1 }, { unique: true });
 
 export const UserModel = model<User>(
   DOCUMENT_NAME,
