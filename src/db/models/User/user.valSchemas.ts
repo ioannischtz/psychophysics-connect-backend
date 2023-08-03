@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { isValidAuthBearer } from "../../../policies/isValidReq.js";
 import { z } from "zod";
 
@@ -21,7 +22,7 @@ const userBaseSchema = z.object({
 // Extend the createUserSchema to include the optional _id field
 export const userSchemaWithId = userBaseSchema.merge(
   z.object({
-    _id: z.string().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>().optional(),
   }),
 );
 

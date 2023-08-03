@@ -13,7 +13,7 @@ const responseBaseSchema = object({
 
 export const responseSchemaWithId = responseBaseSchema.merge(
   object({
-    _id: z.string().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>().optional(),
   }),
 );
 

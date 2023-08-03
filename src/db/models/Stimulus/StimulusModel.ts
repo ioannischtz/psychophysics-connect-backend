@@ -22,7 +22,7 @@ const stimulusSchema = new Schema<Stimulus>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 

@@ -11,7 +11,7 @@ const stimulusBaseSchema = z.object({
 
 export const stimulusSchemaWithId = stimulusBaseSchema.merge(
   z.object({
-    _id: z.string().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>().optional(),
   }),
 );
 

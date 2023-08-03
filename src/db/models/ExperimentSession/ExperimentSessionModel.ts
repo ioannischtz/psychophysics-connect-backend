@@ -24,7 +24,7 @@ const experimentSessionSchema = new Schema<ExperimentSession>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 

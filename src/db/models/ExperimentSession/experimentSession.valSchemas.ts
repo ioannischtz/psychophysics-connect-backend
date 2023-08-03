@@ -21,7 +21,7 @@ const experimentSessionBaseSchema = z.object({
 
 export const experimentSessionSchemaWithId = experimentSessionBaseSchema.merge(
   z.object({
-    _id: z.string().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>().optional(),
   }),
 );
 

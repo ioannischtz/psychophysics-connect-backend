@@ -10,7 +10,7 @@ const mediaAssetBaseSchema = z.object({
 
 export const mediaAssetSchemaWithId = mediaAssetBaseSchema.merge(
   z.object({
-    _id: z.string().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>().optional(),
   }),
 );
 
