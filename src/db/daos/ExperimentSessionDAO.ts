@@ -146,3 +146,16 @@ async function findAllOngoingByExperiment(
     .lean()
     .exec();
 }
+
+export default {
+  create,
+  update,
+  findById,
+  findCompletedById,
+  findByUserAndExperiment,
+  findAllByUser,
+  findAllCompleted,
+  findAllCompletedByExperiment,
+  findAllOngoing,
+  findAllOngoingByExperiment,
+};
