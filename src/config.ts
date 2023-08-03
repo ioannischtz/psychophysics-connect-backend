@@ -23,6 +23,9 @@ export const DEFAULTS = {
   DB_PASSWORD: "",
   DB_HOST: "",
   DB_NAME: "",
+  DB_PORT: "",
+  DB_MEMORY: false,
+  MONGO_URI: "",
   LOG_DIR: `${__dirname}/logs`,
   MULTER_DEST_PATH: `${__dirname}/temp`,
   LIMIT_CONSECUTIVE_ATTEMPTS: 10,
@@ -57,4 +60,7 @@ export const db = {
   password: process.env.DB_PASSWORD || DEFAULTS.DB_PASSWORD,
   host: process.env.DB_HOST || DEFAULTS.DB_HOST,
   name: process.env.DB_NAME || DEFAULTS.DB_NAME,
+  port: process.env.DB_PORT || DEFAULTS.DB_PORT,
+  memory: process.env.DB_MEMORY || DEFAULTS.DB_MEMORY,
+  mongo_uri: process.env.MONGO_URI || DEFAULTS.MONGO_URI,
 };
