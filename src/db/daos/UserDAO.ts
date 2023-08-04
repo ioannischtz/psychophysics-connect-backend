@@ -150,3 +150,24 @@ async function findManyByQueryLean(
   const users = await query.lean().exec();
   return users;
 }
+
+export default {
+  userExists,
+  findPrivateById,
+  findPrivateByIdLean,
+  findPublicById,
+  findPublicByIdLean,
+  findWithCriticalById,
+  findWithCriticalByIdLean,
+  findWithCriticalByEmail,
+  findWithCriticalByEmailLean,
+  findFieldsById,
+  findFieldsByIdLean,
+  create,
+  update,
+  deleteById,
+  findManyByRole,
+  findManyByRoleLean,
+  findManyByQuery,
+  findManyByQueryLean,
+};

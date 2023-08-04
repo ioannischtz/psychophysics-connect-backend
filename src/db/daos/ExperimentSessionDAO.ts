@@ -91,7 +91,6 @@ async function findByUserAndExperiment(
 
 async function findAllByUser(user: Subject): Promise<ExperimentSession[]> {
   return ExperimentSessionModel.find({ subject: user })
-    .populate("subject", SUBJECT_FIELDS)
     .populate(getPopulateOptions())
     .sort({ updatedAt: -1 })
     .lean()
