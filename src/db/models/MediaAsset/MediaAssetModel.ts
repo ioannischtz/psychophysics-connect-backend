@@ -18,7 +18,7 @@ const mediaAssetSchema = new Schema<MediaAsset>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 

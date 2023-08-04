@@ -102,12 +102,12 @@ const inMemoryBlockMiddleware = (
   const inMemoryBlockByIP = new Set<string>();
   return (req: ProtectedRequest, res: Response, next: NextFunction): void => {
     const key = req.user._id ? req.user._id : req.ip;
-    if (inMemoryBlockByIP.has(key)) {
+    if (inMemoryBlockByIP.has(key as string)) {
       res.status(429).send("Too Many Requests");
     } else {
-      inMemoryBlockByIP.add(key);
+      inMemoryBlockByIP.add(key as string);
       setTimeout(() => {
-        inMemoryBlockByIP.delete(key);
+        inMemoryBlockByIP.delete(key as string);
       }, inMemoryBlockDuration);
       next();
     }

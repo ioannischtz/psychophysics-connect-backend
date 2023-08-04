@@ -4,4 +4,7 @@ module.exports = {
   roots: ["<rootDir>/tests"],
   setupFiles: ["<rootDir>/tests/setup.ts"],
   collectCoverageFrom: ["<rootDir>/src/**/*.ts", "!**/node_modules/**"],
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
 };

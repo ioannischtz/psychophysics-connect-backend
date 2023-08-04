@@ -24,7 +24,7 @@ const perceptualDimensionSchema = new Schema<PerceptualDimension>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 

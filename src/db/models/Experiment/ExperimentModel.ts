@@ -20,7 +20,7 @@ const experimentSchema = new Schema<Experiment>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 
