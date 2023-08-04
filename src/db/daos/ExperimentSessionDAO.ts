@@ -3,6 +3,7 @@ import { ExperimentSession } from "../models/ExperimentSession/experimentSession
 import { ExperimentSessionModel } from "../models/ExperimentSession/ExperimentSessionModel.js";
 import { User } from "../models/User/user.valSchemas.js";
 import { Experiment } from "../models/Experiment/experiment.valSchemas.js";
+import { Response } from "../models/Response/response.valSchemas.js";
 
 type Subject = Omit<User, "role"> & { role: "subject" };
 
@@ -146,6 +147,144 @@ async function findAllOngoingByExperiment(
     .exec();
 }
 
+// -----------------
+// ---- Response ----
+// -----------------
+
+// ---- Single ----
+
+// Add a response to an experiment-session and return the updated session
+async function addResponse(
+  experimentSessionId: Types.ObjectId,
+  response: Response,
+): Promise<ExperimentSession | null> {
+  return await ExperimentSessionModel.findOneAndUpdate(
+    { _id: experimentSessionId },
+    { $push: { responses: response } },
+    { new: true },
+  );
+}
+
+// ---- Many ----
+
+// Get all responses associated with an experiment-session
+async function getResponsesBySessionId(
+  experimentSessionId: Types.ObjectId,
+): Promise<Response[]> {
+  const session = await ExperimentSessionModel.findById(
+    experimentSessionId,
+  ).select("responses");
+  return session ? session.responses : [];
+}
+
+// Count the number od responses associated with an experiment-session
+async function countResponsesBySessionId(
+  experimentSessionId: Types.ObjectId,
+): Promise<number> {
+  const session = await ExperimentSessionModel.findById(
+    experimentSessionId,
+  ).select("responses");
+  return session ? session.responses.length : 0;
+}
+
+// Get all responses associated with a specific experiment
+async function getResponsesByExperimentId(
+  experimentId: Types.ObjectId,
+): Promise<Response[]> {
+  const sessions = await ExperimentSessionModel.find({
+    experiment: experimentId,
+  }).select("responses");
+  return sessions.reduce(
+    (responses: Response[], session: ExperimentSession) => {
+      responses.push(...session.responses);
+      return responses;
+    },
+    [],
+  );
+}
+
+// Get all responses associated with a specific user(subject)
+async function getResponsesByUser(userId: Types.ObjectId): Promise<Response[]> {
+  const sessions = await ExperimentSessionModel.find({
+    subject: userId,
+  }).select("responses");
+  return sessions.reduce(
+    (responses: Response[], session: ExperimentSession) => {
+      responses.push(...session.responses);
+      return responses;
+    },
+    [],
+  );
+}
+
+// Get all responses associated with a specific user and experiment
+async function getResponsesByUserAndExperiment(
+  userId: Types.ObjectId,
+  experimentId: Types.ObjectId,
+): Promise<Response[]> {
+  const sessions = await ExperimentSessionModel.find({
+    subject: userId,
+    experiment: experimentId,
+  }).select("responses");
+  return sessions.reduce(
+    (responses: Response[], session: ExperimentSession) => {
+      responses.push(...session.responses);
+      return responses;
+    },
+    [],
+  );
+}
+
+// Get all responses associated with a specific perceptual-dimension
+async function getResponsesByPerceptDim(
+  perceptualDimensionId: Types.ObjectId,
+): Promise<Response[]> {
+  const sessions = await ExperimentSessionModel.find({
+    "responses.perceptualDimension": perceptualDimensionId,
+  }).select("responses");
+  return sessions.reduce(
+    (responses: Response[], session: ExperimentSession) => {
+      responses.push(...session.responses);
+      return responses;
+    },
+    [],
+  );
+}
+
+// Get all responses associated with a specific perceptual-dimension and experiment
+async function getResponsesByPerceptDimAndExperiment(
+  perceptualDimensionId: Types.ObjectId,
+  experimentId: Types.ObjectId,
+): Promise<Response[]> {
+  const sessions = await ExperimentSessionModel.find({
+    experiment: experimentId,
+    "responses.perceptualDimension": perceptualDimensionId,
+  }).select("responses");
+  return sessions.reduce(
+    (responses: Response[], session: ExperimentSession) => {
+      responses.push(...session.responses);
+      return responses;
+    },
+    [],
+  );
+}
+
+// Get all responses associated with a specific perceptual-dimension and experiment-session
+async function getResponsesByPerceptDimAndSessionId(
+  perceptualDimensionId: Types.ObjectId,
+  experimentSessionId: Types.ObjectId,
+): Promise<Response[]> {
+  const session = await ExperimentSessionModel.findById(
+    experimentSessionId,
+  ).select("responses");
+  return session
+    ? session.responses.filter(
+      (response: Response) =>
+        response.perceptualDimension === perceptualDimensionId,
+    )
+    : [];
+}
+
 export default {
   create,
   update,
@@ -153,8 +292,18 @@ export default {
   findCompletedById,
   findByUserAndExperiment,
   findAllByUser,
+  findAllByExperiment,
   findAllCompleted,
   findAllCompletedByExperiment,
   findAllOngoing,
   findAllOngoingByExperiment,
+  addResponse,
+  getResponsesBySessionId,
+  countResponsesBySessionId,
+  getResponsesByExperimentId,
+  getResponsesByUser,
+  getResponsesByUserAndExperiment,
+  getResponsesByPerceptDim,
+  getResponsesByPerceptDimAndExperiment,
+  getResponsesByPerceptDimAndSessionId,
 };
