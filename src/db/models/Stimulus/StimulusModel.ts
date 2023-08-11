@@ -26,6 +26,11 @@ const stimulusSchema = new Schema<Stimulus>(
   },
 );
 
+stimulusSchema.index({ _id: 1 });
+stimulusSchema.index({ title: 1 });
+stimulusSchema.index({ type: 1 });
+stimulusSchema.index({ mediaAsset: 1 });
+
 export const StimulusModel = model<Stimulus>(
   DOCUMENT_NAME,
   stimulusSchema,
