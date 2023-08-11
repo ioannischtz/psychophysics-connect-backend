@@ -35,12 +35,12 @@
 - [ ] FIELDS constants: maybe return \_id as well? or is it returned
       automatically by default?
 
-- [ ] User
-- [ ] ExperimentSession
-- [ ] Experiment
+- [x] User
+- [x] ExperimentSession
+- [x] Experiment
 - [ ] MediaAsset
-- [ ] Response
-- [ ] Stimulus
+- [x] Response
+- [x] Stimulus
 - [ ] PerceptualDimension
 
 ## CONTROLLERS

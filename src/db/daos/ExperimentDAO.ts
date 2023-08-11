@@ -126,3 +126,16 @@ async function findAllActiveByUser(user: Experimenter): Promise<Experiment[]> {
     .lean()
     .exec();
 }
+
+export default {
+  create,
+  update,
+  findById,
+  findByTitle,
+  findAllByUser,
+  findAllByUserPopulated,
+  findAllByPerceptualDimension,
+  findAllActive,
+  findAllActivePopulated,
+  findAllActiveByUser,
+};
