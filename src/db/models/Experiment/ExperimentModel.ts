@@ -24,6 +24,12 @@ const experimentSchema = new Schema<Experiment>(
   },
 );
 
+experimentSchema.index({ _id: 1 });
+experimentSchema.index({ title: 1 });
+experimentSchema.index({ experimenter: 1 });
+experimentSchema.index({ isActive: 1 });
+experimentSchema.index({ experimenter: 1, isActive: 1 });
+
 export const ExperimentModel = model<Experiment>(
   DOCUMENT_NAME,
   experimentSchema,
