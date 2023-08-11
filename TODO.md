@@ -38,7 +38,7 @@
 - [x] User
 - [x] ExperimentSession
 - [x] Experiment
-- [ ] MediaAsset
+- [x] MediaAsset
 - [x] Response
 - [x] Stimulus
 - [x] PerceptualDimension

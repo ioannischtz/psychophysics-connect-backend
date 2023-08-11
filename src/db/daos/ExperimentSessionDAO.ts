@@ -7,11 +7,11 @@ import { Response } from "../models/Response/response.valSchemas.js";
 
 type Subject = Omit<User, "role"> & { role: "subject" };
 
-const SUBJECT_FIELDS = "username";
-const EXPERIMENT_FIELDS = "title description";
-const STIMULI_FIELDS = "title type description";
-const PERCEPTUALDIMENSIONS_FIELDS = "title type description";
-const MEDIAASSET_FIELDS = "mimetype filename";
+const SUBJECT_FIELDS = "_id username";
+const EXPERIMENT_FIELDS = "_id title description";
+const STIMULI_FIELDS = "_id title type description";
+const PERCEPTUALDIMENSIONS_FIELDS = "_id title type description";
+const MEDIAASSET_FIELDS = "_id mimetype filename";
 
 function getPopulateOptions() {
   return [
