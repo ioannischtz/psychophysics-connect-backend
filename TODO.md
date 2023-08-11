@@ -41,7 +41,7 @@
 - [ ] MediaAsset
 - [x] Response
 - [x] Stimulus
-- [ ] PerceptualDimension
+- [x] PerceptualDimension
 
 ## CONTROLLERS
 
