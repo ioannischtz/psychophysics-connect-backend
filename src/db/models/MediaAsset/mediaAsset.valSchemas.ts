@@ -1,8 +1,9 @@
+import { mimeTypes } from "mimetypes.js";
 import mongoose from "mongoose";
 import { z } from "zod";
 
 const mediaAssetBaseSchema = z.object({
-  mimetype: z.string().nonempty(),
+  mimetype: z.enum(mimeTypes),
   filename: z.string().nonempty(),
   stimuli: z.array(z.custom<mongoose.Types.ObjectId>()),
   perceptualDimensions: z.array(z.custom<mongoose.Types.ObjectId>()),
