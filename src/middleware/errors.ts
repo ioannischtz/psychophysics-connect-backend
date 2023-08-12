@@ -142,14 +142,14 @@ export class ApiError extends Error {
           .json(err.formatErrorToJSON(err.type, error));
       }
       case API_ERROR_TYPES.PAGINATION_ERROR:
-      case API_ERROR_TYPES.ZOD_VALIDATION_ERROR:
+      case API_ERROR_TYPES.VALIDATION_ERROR:
       case API_ERROR_TYPES.BAD_REQUEST: {
         error = new createHttpError.BadRequest(err.message);
         return res
           .status(error.status)
           .json(err.formatErrorToJSON(err.type, error));
       }
-      case API_ERROR_TYPES.VALIDATION_ERROR: {
+      case API_ERROR_TYPES.ZOD_VALIDATION_ERROR: {
         if (err instanceof ZodError) {
           const { errors, message: zodMessage } = formatZodErrors(err);
           error = new createHttpError.BadRequest(err.message);
