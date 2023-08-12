@@ -46,6 +46,17 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10);
 });
 
+userSchema.pre(
+  "updateOne",
+  { document: true, query: false },
+  async function (next) {
+    if (!this.isModified("password")) {
+      next();
+    }
+    this.password = await bcrypt.hash(this.password, 10);
+  },
+);
+
 userSchema.index({ email: 1 }, { unique: true });
 
 export const UserModel = model<User>(

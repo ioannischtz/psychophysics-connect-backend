@@ -17,6 +17,8 @@ const userBaseSchema = z.object({
     .string({ required_error: "password is required" })
     .min(6, "password too short - 6 characters minimum required"),
   role: z.enum(["subject", "experimenter"]),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 // Extend the createUserSchema to include the optional _id field

@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { CookieOptions, NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import { deepmerge } from "deepmerge-ts";
 import { environment, jwtSecret } from "../config.js";
@@ -18,15 +18,13 @@ declare global {
 
 const defaultSessionConfig = {
   key: "user.sess",
-  maxAge: 86400000,
-  autoCommit: true,
-  overwrite: true,
-  httpOnly: true,
-  signed: true, // Important: enable signed cookies
-  rolling: false,
-  renew: false,
-  secure: environment === "production", // Use the environment variable
-  sameSite: null,
+  cookieOpts: {
+    httpOnly: true,
+    maxAge: 86400000,
+    secure: environment === "production",
+    signed: true, // Important: enable signed cookies,
+    sameSite: "strict",
+  } as CookieOptions,
   secret: jwtSecret, // Use the jwtSecret from ../config.js
 };
 
@@ -52,7 +50,11 @@ const createSession = (config?: any) => {
     // Add a function to res to save session data
     res.setSessionData = (data: SessionData) => {
       req.sessionData = data;
-      res.cookie(mergedConfig.key, JSON.stringify(data), mergedConfig.cookie);
+      res.cookie(
+        mergedConfig.key,
+        JSON.stringify(data),
+        mergedConfig.cookieOpts,
+      );
     };
 
     next();
