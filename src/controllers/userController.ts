@@ -53,7 +53,7 @@ async function register(
 
   // Save the token in the session data
   res.setSessionData({
-    newUser: userResponseData,
+    ...userResponseData,
     token,
   });
 
@@ -86,6 +86,7 @@ async function login(
 
   // Save the token in the session data
   res.setSessionData({
+    _id: user._id,
     username: user.username,
     role: user.role,
     email: user.email,
