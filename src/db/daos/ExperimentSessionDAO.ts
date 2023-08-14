@@ -4,8 +4,13 @@ import { ExperimentSessionModel } from "../models/ExperimentSession/ExperimentSe
 import { User } from "../models/User/user.valSchemas.js";
 import { Experiment } from "../models/Experiment/experiment.valSchemas.js";
 import { Response } from "../models/Response/response.valSchemas.js";
+import { Stimulus } from "../models/Stimulus/stimulus.valSchemas.js";
+import { MediaAsset } from "../models/MediaAsset/mediaAsset.valSchemas.js";
+import { PerceptualDimension } from "../models/PerceptualDimension/perceptualDimension.valSchemas.js";
 
-type Subject = Omit<User, "role"> & { role: "subject" };
+export interface Subject extends Omit<User, "role"> {
+  role: "subject";
+}
 
 const SUBJECT_FIELDS = "_id username";
 const EXPERIMENT_FIELDS = "_id title description";
@@ -41,6 +46,33 @@ function getPopulateOptions() {
   ];
 }
 
+export interface ExperimentSessionPopulated
+  extends Omit<ExperimentSession, "subject" | "experiment"> {
+  subject: SubjectPopulated;
+  experiment: ExperimentPopulated;
+}
+
+interface SubjectPopulated extends Pick<Subject, "_id" | "username"> {}
+
+interface ExperimentPopulated
+  extends Pick<Experiment, "_id" | "title" | "description"> {
+  stimuli: StimulusPopulated[];
+  perceptualDimensions: PerceptualDimensionPopulated[];
+}
+
+interface StimulusPopulated
+  extends Pick<Stimulus, "_id" | "title" | "type" | "description"> {
+  mediaAsset: MediaAssetPopulated;
+}
+
+interface PerceptualDimensionPopulated
+  extends Pick<PerceptualDimension, "_id" | "title" | "type" | "description"> {
+  mediaAssets: MediaAssetPopulated[];
+}
+
+interface MediaAssetPopulated
+  extends Pick<MediaAsset, "_id" | "mimetype" | "filename"> {}
+
 // ---------------
 // ---- Single ----
 // ---------------
@@ -60,49 +92,97 @@ async function update(
   );
 }
 
-async function findById(id: Types.ObjectId): Promise<ExperimentSession | null> {
-  return ExperimentSessionModel.findOne({ _id: id })
+async function findById(
+  id: Types.ObjectId,
+): Promise<ExperimentSessionPopulated | null> {
+  const result = await ExperimentSessionModel.findOne({ _id: id })
     .populate(getPopulateOptions())
     .lean()
     .exec();
+
+  return result as ExperimentSessionPopulated | null;
 }
 
 async function findCompletedById(
   id: Types.ObjectId,
-): Promise<ExperimentSession | null> {
-  return ExperimentSessionModel.findOne({ _id: id, isCompleted: true })
+): Promise<ExperimentSessionPopulated | null> {
+  const result = await ExperimentSessionModel.findOne({
+    _id: id,
+    isCompleted: true,
+  })
     .populate(getPopulateOptions())
     .lean()
     .exec();
+
+  return result as ExperimentSessionPopulated | null;
 }
 
 async function findByUserAndExperiment(
   user: Subject,
   experiment: Experiment,
-): Promise<ExperimentSession | null> {
-  return ExperimentSessionModel.findOne({ subject: user, experiment })
+): Promise<ExperimentSessionPopulated | null> {
+  const result = await ExperimentSessionModel.findOne({
+    subject: user,
+    experiment,
+  })
+    // .populate({ path: "subject", select: SUBJECT_FIELDS })
+    // .populate({
+    //   path: "experiment",
+    //   select: EXPERIMENT_FIELDS,
+    // })
+    // .populate({
+    //   path: "experiment.stimuli",
+    //   select: STIMULI_FIELDS,
+    //   populate: {
+    //     path: "mediaAsset",
+    //     select: MEDIAASSET_FIELDS,
+    //   },
+    // })
+    // .populate({
+    //   path: "experiment.perceptualDimensions",
+    //   select: PERCEPTUALDIMENSIONS_FIELDS,
+    //   populate: {
+    //     path: "mediaAssets",
+    //     select: MEDIAASSET_FIELDS,
+    //   },
+    // })
+    // .lean()
+    // .exec();
     .populate(getPopulateOptions())
     .lean()
     .exec();
+
+  return result as ExperimentSessionPopulated | null;
 }
 
 // ---------------
 // ---- Many ----
 // ---------------
-
-async function findAllByUser(user: Subject): Promise<ExperimentSession[]> {
+export type ExperimentSessionPopedUser = Omit<ExperimentSession, "subject"> & {
+  subject: SubjectPopulated;
+};
+async function findAllByUser(
+  user: Subject,
+): Promise<ExperimentSessionPopedUser[]> {
   return ExperimentSessionModel.find({ subject: user })
-    .populate(getPopulateOptions())
+    .populate("subject", SUBJECT_FIELDS)
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
 }
-
+export type ExperimentSessionPopedExperiment =
+  & Omit<
+    ExperimentSession,
+    "experiment"
+  >
+  & {
+    experiment: Pick<Experiment, "_id" | "title" | "description">;
+  };
 async function findAllByExperiment(
   experiment: Experiment,
-): Promise<ExperimentSession[]> {
+): Promise<ExperimentSessionPopedExperiment[]> {
   return ExperimentSessionModel.find({ experiment })
-    .populate(getPopulateOptions())
+    .populate("experiment", EXPERIMENT_FIELDS)
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
@@ -110,7 +190,6 @@ async function findAllByExperiment(
 
 async function findAllCompleted(): Promise<ExperimentSession[]> {
   return ExperimentSessionModel.find({ isCompleted: true })
-    .populate(getPopulateOptions())
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
@@ -118,9 +197,9 @@ async function findAllCompleted(): Promise<ExperimentSession[]> {
 
 async function findAllCompletedByExperiment(
   experiment: Experiment,
-): Promise<ExperimentSession[]> {
+): Promise<ExperimentSessionPopedExperiment[]> {
   return ExperimentSessionModel.find({ experiment, isCompleted: true })
-    .populate(getPopulateOptions())
+    .populate("experiment", EXPERIMENT_FIELDS)
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
@@ -128,7 +207,6 @@ async function findAllCompletedByExperiment(
 
 async function findAllOngoing(): Promise<ExperimentSession[]> {
   return ExperimentSessionModel.find({ experiment_step: { $gt: 0 } })
-    .populate(getPopulateOptions())
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
@@ -136,12 +214,12 @@ async function findAllOngoing(): Promise<ExperimentSession[]> {
 
 async function findAllOngoingByExperiment(
   experiment: Experiment,
-): Promise<ExperimentSession[]> {
+): Promise<ExperimentSessionPopedExperiment[]> {
   return ExperimentSessionModel.find({
     experiment,
     experiment_step: { $gt: 0 },
   })
-    .populate(getPopulateOptions())
+    .populate("experiment", EXPERIMENT_FIELDS)
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
@@ -160,7 +238,28 @@ async function addResponse(
 ): Promise<ExperimentSession | null> {
   return await ExperimentSessionModel.findOneAndUpdate(
     { _id: experimentSessionId },
-    { $push: { responses: response } },
+    {
+      $push: { responses: response },
+      $set: {
+        experiment_step: { $add: ["$experiment_step", 1] }, // Increment experiment_step by 1
+        isCompleted: {
+          $gte: [
+            { $add: ["$experiment_step", 1] },
+            {
+              $subtract: [
+                {
+                  $multiply: [
+                    "$experiment.stimuli.length",
+                    "$experiment.perceptualDimensions.length",
+                  ],
+                },
+                1,
+              ],
+            },
+          ],
+        },
+      },
+    },
     { new: true },
   );
 }

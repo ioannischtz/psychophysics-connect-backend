@@ -17,15 +17,18 @@ const experimentSessionBaseSchema = z.object({
   experiment_step: z.number().int(),
   stimuli_order: z.array(z.number().int()),
   responses: z.array(responseSchemaWithId),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 });
 
 export const experimentSessionSchemaWithId = experimentSessionBaseSchema.merge(
   z.object({
-    _id: z.custom<mongoose.Types.ObjectId>().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>(),
   }),
 );
 
-export type ExperimentSession = z.infer<typeof experimentSessionSchemaWithId>;
+export interface ExperimentSession
+  extends z.infer<typeof experimentSessionSchemaWithId> {}
 
 export default {
   createExperimentSession: experimentSessionBaseSchema,

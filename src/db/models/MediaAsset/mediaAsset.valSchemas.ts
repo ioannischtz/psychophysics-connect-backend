@@ -15,6 +15,6 @@ export const mediaAssetSchemaWithId = mediaAssetBaseSchema.merge(
   }),
 );
 
-export type MediaAsset = z.infer<typeof mediaAssetSchemaWithId>;
+export interface MediaAsset extends z.infer<typeof mediaAssetSchemaWithId> {}
 
 export default { createMediaAsset: mediaAssetBaseSchema };

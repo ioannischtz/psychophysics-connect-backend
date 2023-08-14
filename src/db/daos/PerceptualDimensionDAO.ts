@@ -100,3 +100,14 @@ async function findAllByExperimentId(
     .lean()
     .exec();
 }
+
+export default {
+  create,
+  update,
+  deleteById,
+  findById,
+  findByTitle,
+  findAllByType,
+  findAllByMediaAssetId,
+  findAllByExperimentId,
+};

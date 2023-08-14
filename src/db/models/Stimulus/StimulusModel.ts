@@ -6,17 +6,15 @@ export const COLLECTION_NAME = "stimuli";
 
 const stimulusSchema = new Schema<Stimulus>(
   {
-    title: { type: Schema.Types.String, required: true },
+    title: { type: Schema.Types.String },
     type: {
       type: Schema.Types.String,
       enum: ["text", "img", "audio"],
-      required: true,
     },
-    description: { type: Schema.Types.String, required: false },
+    description: { type: Schema.Types.String },
     mediaAsset: {
       type: Schema.Types.ObjectId,
       ref: "MediaAsset",
-      required: true,
     },
     experiments: [{ type: Schema.Types.ObjectId, ref: "Experiment" }],
   },
