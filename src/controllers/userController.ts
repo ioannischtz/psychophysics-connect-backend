@@ -32,6 +32,7 @@ async function register(
 
   // Create new user
   const newUser = await UserDAO.create({
+    _id: new Types.ObjectId(),
     username,
     email,
     password, // Password hashing is automatically handled by pre-save hook

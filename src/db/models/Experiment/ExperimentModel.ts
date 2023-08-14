@@ -6,10 +6,10 @@ export const COLLECTION_NAME = "experiments";
 
 const experimentSchema = new Schema<Experiment>(
   {
-    title: { type: Schema.Types.String, required: true },
-    description: { type: Schema.Types.String, required: true },
-    isActive: { type: Schema.Types.Boolean, required: true },
-    experimenter: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    title: { type: Schema.Types.String },
+    description: { type: Schema.Types.String },
+    isActive: { type: Schema.Types.Boolean },
+    experimenter: { type: Schema.Types.ObjectId, ref: "User" },
     experimentSessions: [
       { type: Schema.Types.ObjectId, ref: "ExperimentSession" },
     ],

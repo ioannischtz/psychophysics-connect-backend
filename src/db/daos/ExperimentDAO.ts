@@ -2,6 +2,10 @@ import { Types } from "mongoose";
 import { ExperimentModel } from "../models/Experiment/ExperimentModel.js";
 import { Experiment } from "../models/Experiment/experiment.valSchemas.js";
 import { User } from "../models/User/user.valSchemas.js";
+import { ExperimentSession } from "../models/ExperimentSession/experimentSession.valSchemas.js";
+import { Stimulus } from "../models/Stimulus/stimulus.valSchemas.js";
+import { MediaAsset } from "../models/MediaAsset/mediaAsset.valSchemas.js";
+import { PerceptualDimension } from "../models/PerceptualDimension/perceptualDimension.valSchemas.js";
 
 type Experimenter = Omit<User, "role"> & { role: "experimenter" };
 
@@ -38,6 +42,36 @@ function getPopulateOptions() {
   ];
 }
 
+interface ExperimentPopulated extends
+  Omit<
+    Experiment,
+    "experimenter" | "experimentSessions" | "stimuli" | "perceptualDimensions"
+  > {
+  experimenter: ExperimenterPopulated;
+  experimentSessions: ExperimentSessionPopulated[];
+  stimuli: StimulusPopulated[];
+  perceptualDimensions: PerceptualDimensionPopulated[];
+}
+
+interface ExperimenterPopulated
+  extends Pick<Experimenter, "_id" | "username"> {}
+
+interface ExperimentSessionPopulated
+  extends Pick<ExperimentSession, "_id" | "experiment_step"> {}
+
+interface StimulusPopulated
+  extends Pick<Stimulus, "_id" | "title" | "type" | "description"> {
+  mediaAsset: MediaAssetPopulated;
+}
+
+interface PerceptualDimensionPopulated
+  extends Pick<PerceptualDimension, "_id" | "title" | "type" | "description"> {
+  mediaAssets: MediaAssetPopulated[];
+}
+
+interface MediaAssetPopulated
+  extends Pick<MediaAsset, "_id" | "mimetype" | "filename"> {}
+
 async function create(experiment: Experiment): Promise<Experiment> {
   const createdExperiment = await ExperimentModel.create(experiment);
   return createdExperiment.toObject();
@@ -51,20 +85,24 @@ async function update(experiment: Experiment): Promise<Experiment | null> {
   );
 }
 
-async function findById(id: Types.ObjectId): Promise<Experiment | null> {
-  return ExperimentModel.findOne({
+async function findById(
+  id: Types.ObjectId,
+): Promise<ExperimentPopulated | null> {
+  const result = await ExperimentModel.findOne({
     _id: id,
   })
     .populate(getPopulateOptions())
     .lean()
     .exec();
+  return result as ExperimentPopulated | null;
 }
 
-async function findByTitle(title: string): Promise<Experiment | null> {
-  return ExperimentModel.findOne({ title: title })
+async function findByTitle(title: string): Promise<ExperimentPopulated | null> {
+  const result = await ExperimentModel.findOne({ title: title })
     .populate(getPopulateOptions())
     .lean()
     .exec();
+  return result as ExperimentPopulated | null;
 }
 
 // ---------------
@@ -72,14 +110,24 @@ async function findByTitle(title: string): Promise<Experiment | null> {
 // ---------------
 
 // dont populate
-async function findAllByUser(user: Experimenter): Promise<Experiment[]> {
-  return ExperimentModel.find({ experimenter: user })
+
+type ExperimentPopedUser = Omit<Experiment, "experimenter"> & {
+  experimenter: ExperimenterPopulated;
+};
+async function findAllByUser(
+  user: Experimenter,
+): Promise<ExperimentPopedUser[]> {
+  const result = await ExperimentModel.find({ experimenter: user })
+    .populate("experimenter", EXPERIMENTER_FIELDS)
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
+  return result as ExperimentPopedUser[];
 }
 
 // populate
+
+// potential issue, with return type
 async function findAllByUserPopulated(
   user: Experimenter,
 ): Promise<Experiment[]> {
@@ -90,10 +138,18 @@ async function findAllByUserPopulated(
     .exec();
 }
 
+type ExperimentPopedPerceptualDimension =
+  & Omit<
+    Experiment,
+    "perceptualDimension"
+  >
+  & {
+    perceptualDimension: PerceptualDimensionPopulated;
+  };
 async function findAllByPerceptualDimension(
   perceptualDimensionId: Types.ObjectId,
-): Promise<Experiment[]> {
-  return ExperimentModel.find({
+): Promise<ExperimentPopedPerceptualDimension[]> {
+  const result = await ExperimentModel.find({
     perceptualDimensions: perceptualDimensionId,
   })
     .populate({
@@ -103,6 +159,8 @@ async function findAllByPerceptualDimension(
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
+
+  return result as ExperimentPopedPerceptualDimension[];
 }
 
 async function findAllActive(): Promise<Experiment[]> {
@@ -112,6 +170,7 @@ async function findAllActive(): Promise<Experiment[]> {
     .exec();
 }
 
+// potential issue with return type
 async function findAllActivePopulated(): Promise<Experiment[]> {
   return ExperimentModel.find({ isActive: true })
     .populate(getPopulateOptions())
@@ -120,11 +179,17 @@ async function findAllActivePopulated(): Promise<Experiment[]> {
     .exec();
 }
 
-async function findAllActiveByUser(user: Experimenter): Promise<Experiment[]> {
-  return ExperimentModel.find({ experimenter: user, isActive: true })
+async function findAllActiveByUser(
+  user: Experimenter,
+): Promise<ExperimentPopedUser[]> {
+  const result = await ExperimentModel.find({
+    experimenter: user,
+    isActive: true,
+  })
     .sort({ updatedAt: -1 })
     .lean()
     .exec();
+  return result as ExperimentPopedUser[];
 }
 
 export default {

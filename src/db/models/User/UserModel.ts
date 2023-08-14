@@ -11,19 +11,16 @@ const userSchema = new Schema<User>(
       type: Schema.Types.String,
       trim: true,
       maxlength: 100,
-      required: true,
     },
     email: {
       type: Schema.Types.String,
       trim: true,
       unique: true,
       sparse: true, // allow null
-      required: true,
       select: false,
     },
     password: {
       type: Schema.Types.String,
-      required: true,
       select: false,
     },
     role: {
@@ -40,6 +37,9 @@ const userSchema = new Schema<User>(
 );
 
 userSchema.pre("save", async function (next) {
+  if (!this.password) {
+    throw new Error("the password is undefined");
+  }
   if (!this.isModified("password")) {
     next();
   }
@@ -50,6 +50,9 @@ userSchema.pre(
   "updateOne",
   { document: true, query: false },
   async function (next) {
+    if (!this.password) {
+      throw new Error("the password is undefined");
+    }
     if (!this.isModified("password")) {
       next();
     }

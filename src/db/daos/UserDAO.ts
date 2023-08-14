@@ -67,11 +67,12 @@ async function findWithCriticalByEmail(email: string): Promise<User | null> {
 // lean version
 async function findWithCriticalByEmailLean(
   email: string,
-): Promise<User | null> {
-  return UserModel.findOne({ email: email })
+): Promise<Required<User> | null> {
+  const result = await UserModel.findOne({ email: email })
     .select("+email +password +role")
     .lean()
     .exec();
+  return result as Required<User> | null;
 }
 
 async function findFieldsById(
