@@ -24,7 +24,7 @@ async function listActiveExperiments(
   return res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function listExperiments(req: Request, res: Response) {
+async function listExperimentsForExperimenter(req: Request, res: Response) {
   // Get a list of all experiments created by the experimenter
   const experimenterId = req.sessionData._id; // Assuming you have this in your session
   const experiments = await ExperimentDAO.findAllByUser(experimenterId);
@@ -144,7 +144,7 @@ async function editExperiment(req: Request, res: Response) {
 
 export default {
   listActiveExperiments,
-  listExperiments,
+  listExperimentsForExperimenter,
   addExperiment,
   editExperiment,
 };
