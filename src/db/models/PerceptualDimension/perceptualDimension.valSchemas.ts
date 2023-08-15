@@ -12,7 +12,7 @@ const perceptualDimensionBaseSchema = object({
 export const perceptualDimensionSchemaWithId = perceptualDimensionBaseSchema
   .merge(
     object({
-      _id: z.custom<mongoose.Types.ObjectId>().optional(),
+      _id: z.custom<mongoose.Types.ObjectId>(),
     }),
   );
 

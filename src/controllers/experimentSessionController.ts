@@ -78,8 +78,6 @@ async function newSession(
   return res.status(httpStatusCodes.CREATED).json(createdSession);
 }
 
-type SubjectHomePageResponse = ExperimentSessionPopedUser;
-
 async function getAllByUser(
   req: Request,
   res: Response,
