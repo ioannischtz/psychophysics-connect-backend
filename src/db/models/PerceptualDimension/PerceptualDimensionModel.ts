@@ -27,7 +27,6 @@ const perceptualDimensionSchema = new Schema<PerceptualDimension>(
   },
 );
 
-perceptualDimensionSchema.index({ _id: 1 });
 perceptualDimensionSchema.index({ title: 1 });
 perceptualDimensionSchema.index({ type: 1 });
 
