@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 import { httpStatusCodes } from "../middleware/errors.js";
 import logger from "../middleware/logger.js";
 import PerceptualDimensionDAO from "../db/daos/PerceptualDimensionDAO.js";
-import { PerceptualDimension } from "src/db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
+import { PerceptualDimension } from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
 import { MIMEtypes } from "mimetypes.js";
 
 async function create(
@@ -136,9 +136,8 @@ async function queryMediaAssets(
     filterCriteria.mimetype = mimetype;
   }
 
-  let perceptualDimension: PerceptualDimension = null;
   if (perceptualDimensionId) {
-    perceptualDimension = await PerceptualDimensionDAO.findById(
+    const perceptualDimension = await PerceptualDimensionDAO.findById(
       new Types.ObjectId(perceptualDimensionId),
     );
 

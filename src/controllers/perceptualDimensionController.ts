@@ -1,7 +1,5 @@
 import { Request, Response } from "express";
-import PerceptualDimensionDAO, {
-  OptionalPerceptualDimension,
-} from "../db/daos/PerceptualDimensionDAO.js";
+import PerceptualDimensionDAO from "../db/daos/PerceptualDimensionDAO.js";
 import { PerceptualDimension } from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
 import { Types } from "mongoose";
 import { httpStatusCodes } from "../middleware/errors.js";
@@ -42,30 +40,26 @@ async function edit(
   const { title, type, description, mediaAssetsToAdd, mediaAssetsToRemove } =
     req.body;
 
-  let perceptualDimension: OptionalPerceptualDimension = {
-    _id: new Types.ObjectId(perceptualDimensionId),
-  };
-
-  if (title) {
-    perceptualDimension.title = title;
-  }
-
-  if (type) {
-    perceptualDimension.type = type;
-  }
-
-  if (description) {
-    perceptualDimension.description = description;
-  }
-
   const existingPerceptualDimension = await PerceptualDimensionDAO.findById(
-    perceptualDimension._id,
+    new Types.ObjectId(perceptualDimensionId),
   );
 
   if (!existingPerceptualDimension) {
     return res
       .status(httpStatusCodes.NOT_FOUND)
       .json({ error: "PerceptualDimension not found" });
+  }
+
+  if (title) {
+    existingPerceptualDimension.title = title;
+  }
+
+  if (type) {
+    existingPerceptualDimension.type = type;
+  }
+
+  if (description) {
+    existingPerceptualDimension.description = description;
   }
 
   // Handle adding and removing mediaAssets
@@ -82,7 +76,7 @@ async function edit(
       );
   }
   const editedPerceptualDimension = await PerceptualDimensionDAO.update(
-    perceptualDimension,
+    existingPerceptualDimension,
   );
 
   if (!editedPerceptualDimension) {
