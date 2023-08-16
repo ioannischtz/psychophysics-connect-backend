@@ -20,15 +20,18 @@ function getPopulateOptions() {
 // ---- Single ----
 // ---------------
 
-async function create(stimulus: MediaAsset): Promise<MediaAsset | null> {
-  const createdMediaAsset = await MediaAssetModel.create(stimulus);
+async function create(mediaAsset: MediaAsset): Promise<MediaAsset | null> {
+  const createdMediaAsset = await MediaAssetModel.create(mediaAsset);
   return createdMediaAsset.toObject();
 }
 
-async function update(stimulus: MediaAsset): Promise<MediaAsset | null> {
+export type OptionalMediaAsset = Omit<Partial<MediaAsset>, "_id"> & {
+  _id: Types.ObjectId;
+};
+async function update(mediaAsset: MediaAsset): Promise<MediaAsset | null> {
   return MediaAssetModel.findByIdAndUpdate(
-    stimulus._id,
-    { $set: { ...stimulus } },
+    mediaAsset._id,
+    { $set: { ...mediaAsset } },
     { new: true },
   );
 }
@@ -91,6 +94,23 @@ async function findAllByPerceptualDimension(
     .exec();
 }
 
+async function findAllByMimetypeForPerceptualDimension(
+  mimetype: MIMEtypes,
+  perceptualDimensionId: Types.ObjectId,
+): Promise<MediaAsset[]> {
+  return MediaAssetModel.find({
+    mimetype: mimetype,
+    perceptualDimensions: perceptualDimensionId,
+  })
+    .populate({
+      path: "perceptualDimensions",
+      select: PERCEPTUAL_DIMENSIONS_FIELDS,
+    })
+    .sort({ updatedAt: -1 })
+    .lean()
+    .exec();
+}
+
 export default {
   create,
   update,
@@ -100,4 +120,5 @@ export default {
   findByStimulusId,
   findAllByMimetype,
   findAllByPerceptualDimension,
+  findAllByMimetypeForPerceptualDimension,
 };
