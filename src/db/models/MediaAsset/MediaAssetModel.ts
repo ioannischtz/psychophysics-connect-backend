@@ -10,11 +10,9 @@ const mediaAssetSchema = new Schema<MediaAsset>(
     mimetype: {
       type: Schema.Types.String,
       enum: mimeTypes,
-      required: true,
     },
     filename: {
       type: Schema.Types.String,
-      required: true,
     },
     stimuli: [{ type: Schema.Types.ObjectId, ref: "Stimulus" }],
     perceptualDimensions: [

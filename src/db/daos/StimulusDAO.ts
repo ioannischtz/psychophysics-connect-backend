@@ -25,7 +25,10 @@ async function create(stimulus: Stimulus): Promise<Stimulus | null> {
   return createdStimulus.toObject();
 }
 
-async function update(stimulus: Stimulus): Promise<Stimulus | null> {
+export type OptionalStimulus = Omit<Partial<Stimulus>, "_id"> & {
+  _id: Types.ObjectId;
+};
+async function update(stimulus: OptionalStimulus): Promise<Stimulus | null> {
   return StimulusModel.findByIdAndUpdate(
     stimulus._id,
     { $set: { ...stimulus } },
