@@ -25,6 +25,9 @@ const mediaAssetSchema = new Schema<MediaAsset>(
   },
 );
 
+mediaAssetSchema.index({ mimetype: 1 });
+mediaAssetSchema.index({ filename: 1 });
+
 export const MediaAssetModel = model<MediaAsset>(
   DOCUMENT_NAME,
   mediaAssetSchema,
