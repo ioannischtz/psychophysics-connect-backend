@@ -6,9 +6,11 @@ const experimentBaseSchema = z.object({
   description: z.string().optional(),
   isActive: z.boolean().optional(),
   experimenter: z.custom<mongoose.Types.ObjectId>().optional(),
-  experimentSessions: z.array(z.custom<mongoose.Types.ObjectId>()).optional(),
-  stimuli: z.array(z.custom<mongoose.Types.ObjectId>()).optional(),
-  perceptualDimensions: z.array(z.custom<mongoose.Types.ObjectId>()).optional(),
+  experimentSessions: z.array(z.custom<mongoose.Types.ObjectId>()).default([]),
+  stimuli: z.array(z.custom<mongoose.Types.ObjectId>()).default([]),
+  perceptualDimensions: z
+    .array(z.custom<mongoose.Types.ObjectId>())
+    .default([]),
 });
 
 export const experimentSchema = experimentBaseSchema.merge(

@@ -6,7 +6,7 @@ const stimulusBaseSchema = z.object({
   type: z.enum(["text", "img", "audio"]),
   description: z.string().optional(),
   mediaAsset: z.custom<mongoose.Types.ObjectId>().optional(),
-  experiments: z.array(z.custom<mongoose.Types.ObjectId>()).optional(),
+  experiments: z.array(z.custom<mongoose.Types.ObjectId>()).default([]),
 });
 
 export const stimulusSchemaWithId = stimulusBaseSchema.merge(

@@ -16,7 +16,7 @@ const experimentSessionBaseSchema = z.object({
   isCompleted: z.boolean(),
   experiment_step: z.number().int(),
   stimuli_order: z.array(z.number().int()),
-  responses: z.array(responseSchemaWithId),
+  responses: z.array(responseSchemaWithId).default([]),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
 });

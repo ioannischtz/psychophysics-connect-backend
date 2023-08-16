@@ -5,8 +5,8 @@ const perceptualDimensionBaseSchema = object({
   title: string().nonempty().optional(),
   type: z.enum(["text", "img", "audio"]),
   description: string().optional(),
-  mediaAssets: array(z.custom<mongoose.Types.ObjectId>()).optional(),
-  experiments: array(z.custom<mongoose.Types.ObjectId>()).optional(),
+  mediaAssets: array(z.custom<mongoose.Types.ObjectId>()).default([]),
+  experiments: array(z.custom<mongoose.Types.ObjectId>()).default([]),
 });
 
 export const perceptualDimensionSchemaWithId = perceptualDimensionBaseSchema

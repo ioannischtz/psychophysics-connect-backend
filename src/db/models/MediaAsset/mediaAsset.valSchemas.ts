@@ -5,8 +5,10 @@ import { z } from "zod";
 const mediaAssetBaseSchema = z.object({
   mimetype: z.enum(mimeTypes).optional(),
   filename: z.string().optional(),
-  stimuli: z.array(z.custom<mongoose.Types.ObjectId>()).optional(),
-  perceptualDimensions: z.array(z.custom<mongoose.Types.ObjectId>()).optional(),
+  stimuli: z.array(z.custom<mongoose.Types.ObjectId>()).default([]),
+  perceptualDimensions: z
+    .array(z.custom<mongoose.Types.ObjectId>())
+    .default([]),
 });
 
 export const mediaAssetSchemaWithId = mediaAssetBaseSchema.merge(
