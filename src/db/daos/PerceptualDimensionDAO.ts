@@ -26,8 +26,16 @@ async function create(
   return createdPerceptualDimension.toObject();
 }
 
+export type OptionalPerceptualDimension =
+  & Omit<
+    Partial<PerceptualDimension>,
+    "_id"
+  >
+  & {
+    _id: Types.ObjectId;
+  };
 async function update(
-  perceptualDimension: PerceptualDimension,
+  perceptualDimension: OptionalPerceptualDimension,
 ): Promise<PerceptualDimension | null> {
   return PerceptualDimensionModel.findByIdAndUpdate(
     perceptualDimension._id,
