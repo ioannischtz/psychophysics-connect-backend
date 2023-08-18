@@ -44,5 +44,55 @@ router.get(
   },
   (req, res) => res.status(200).json("GET: /api/users/homepage"),
 );
+// @route    api/users/account
+// @method   PUT
+// @desc     Update the user's account info
+// @access   Private: run isAuthedSubject Policy-Middleware
+router.put(
+  "/account",
+  (req, res, next) => {
+    console.info("Policy: isAuthedSubject()");
+    next();
+  },
+  (req, res) => res.status(200).json("PUT: /api/users/account"),
+);
+// @route    api/users/account
+// @method   DELETE
+// @desc     Delete the user's account info
+// @access   Private: run isAuthedSubject Policy-Middleware
+router.delete(
+  "/account",
+  (req, res, next) => {
+    console.info("Policy: isAuthedSubject()");
+    next();
+  },
+  (req, res) => res.status(200).json("DELETE: /api/users/account"),
+);
+// @route    api/users/roles/:role
+// @method   GET
+// @desc     Get users by role
+// @access   Private: run isAuthedSubject Policy-Middleware
+router.get(
+  "/roles/:role",
+  (req, res, next) => {
+    console.info("Policy: isAuthedSubject()");
+    next();
+  },
+  (req, res) =>
+    res.status(200).json(`GET: /api/users/roles/${req.params.role}`),
+);
+// @route    api/users
+// @method   GET
+// @desc     Get users by query
+// @access   Private: run isAuthedSubject Policy-Middleware
+router.get(
+  "/",
+  (req, res, next) => {
+    console.info("Policy: isAuthedSubject()");
+    next();
+  },
+  (req, res) =>
+    res.status(200).json({ msg: `GET: /api/users/roles`, q: req.query }),
+);
 
 export default router;

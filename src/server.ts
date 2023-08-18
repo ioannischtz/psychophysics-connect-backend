@@ -9,12 +9,12 @@ const connection = await initDB();
 
 const app = express();
 
-const parseBody: Middleware[] = bodyParser({
-  jsonLimit: "1mb",
-  formLimit: "5mb",
-  textLimit: "256kb",
-  encoding: "utf-8",
-});
+// const parseBody: Middleware[] = bodyParser({
+//   jsonLimit: "1mb",
+//   formLimit: "5mb",
+//   textLimit: "256kb",
+//   encoding: "utf-8",
+// });
 
 app.use("/api/users", userRoutes);
 
