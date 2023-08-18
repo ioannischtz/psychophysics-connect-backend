@@ -18,10 +18,7 @@ import { sanitizeUserQuery } from "../services/sanitizeQuery.js";
 
 export type UserResData = Pick<ShapedUserResponseData, "userData">;
 
-async function register(
-  req: Request,
-  res: Response,
-): Promise<Response<UserResData, Record<string, any>>> {
+async function register(req: Request, res: Response): Promise<void> {
   const { username, email, password, role } = req.body;
 
   // Check if user already exists
@@ -35,7 +32,7 @@ async function register(
     _id: new Types.ObjectId(),
     username,
     email,
-    password, // Password hashing is automatically handled by pre-save hook
+    password: await bcrypt.hash(password, 10), // Password hashing is automatically handled by pre-save hook
     role,
   });
 
@@ -59,13 +56,10 @@ async function register(
   });
 
   logger.info(userResponseData.msg, userResponseData.userData);
-  return res.status(httpStatusCodes.CREATED).json(userResponseData);
+  res.status(httpStatusCodes.CREATED).json(userResponseData);
 }
 
-async function login(
-  req: Request,
-  res: Response,
-): Promise<Response<UserResData, Record<string, any>>> {
+async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body;
 
   // find the user by email
@@ -103,13 +97,10 @@ async function login(
   logger.info(userResponseData.msg, userResponseData.userData);
 
   // Retun success response
-  return res.status(httpStatusCodes.OK).json(userResponseData);
+  res.status(httpStatusCodes.OK).json(userResponseData);
 }
 
-async function logout(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string }, Record<string, any>>> {
+async function logout(req: Request, res: Response): Promise<void> {
   // Clear the user's session data by setting it to an empty object
   res.setSessionData({});
 
@@ -120,13 +111,10 @@ async function logout(
   logger.info(responseData.msg);
 
   // Send a response message indicating the successful logout
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function getProfile(
-  req: Request,
-  res: Response,
-): Promise<Response<UserResData, Record<string, any>>> {
+async function getProfile(req: Request, res: Response): Promise<void> {
   // Assuming the user's _id has been set in the session data during login
   const userId = req.sessionData._id;
   if (!userId) {
@@ -150,13 +138,10 @@ async function getProfile(
   logger.info(userResponseData.msg, userResponseData.userData);
 
   // return the fetched user data
-  return res.status(httpStatusCodes.OK).json(userResponseData);
+  res.status(httpStatusCodes.OK).json(userResponseData);
 }
 
-async function updateAccountInfo(
-  req: Request,
-  res: Response,
-): Promise<Response<UserResData, Record<string, any>>> {
+async function updateAccountInfo(req: Request, res: Response): Promise<void> {
   const userId = req.sessionData._id; // Retrieve userId from sessionData
 
   if (!userId) {
@@ -176,7 +161,7 @@ async function updateAccountInfo(
     existingUser.email = req.body.email;
   }
   if (req.body.password) {
-    existingUser.password = req.body.password;
+    existingUser.password = await bcrypt.hash(req.body.password, 10);
   }
 
   await UserDAO.update(existingUser);
@@ -189,13 +174,10 @@ async function updateAccountInfo(
 
   logger.info(userResponseData.msg, userResponseData.userData);
 
-  return res.status(httpStatusCodes.OK).json(userResponseData);
+  res.status(httpStatusCodes.OK).json(userResponseData);
 }
 
-async function deleteAccount(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string }, Record<string, any>>> {
+async function deleteAccount(req: Request, res: Response): Promise<void> {
   const userId = req.sessionData._id;
   if (!userId) {
     throw new ApiError(API_ERROR_TYPES.UNAUTHORIZED, "User not logged in");
@@ -214,13 +196,10 @@ async function deleteAccount(
 
   logger.info(responseData.msg);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function getUsersByRole(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string; users: User[] }, Record<string, any>>> {
+async function getUsersByRole(req: Request, res: Response): Promise<void> {
   type UserRole = Pick<User, "role">["role"];
   const role = req.params.role as unknown as UserRole; // Extract the role from the request parameters
 
@@ -238,25 +217,26 @@ async function getUsersByRole(
 
   logger.info(responseData.msg, responseData.users);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function getUsersByQuery(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string; users: User[] }, Record<string, any>>> {
+async function getUsersByQuery(req: Request, res: Response): Promise<void> {
   const sanitizedQuery = sanitizeUserQuery(req.query); // Sanitize and validate query parameters
 
   const users = await UserDAO.findManyByQueryLean(sanitizedQuery);
 
   const responseData = {
-    msg: `Fetched users by query: ${sanitizedQuery} successfully`,
+    msg: `Fetched users by query: ${
+      JSON.stringify(
+        sanitizedQuery,
+      )
+    } successfully`,
     users,
   };
 
   logger.info(responseData.msg, responseData.users);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 export default {

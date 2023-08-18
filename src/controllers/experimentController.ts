@@ -12,7 +12,7 @@ import { Types } from "mongoose";
 async function listActiveExperiments(
   req: Request,
   res: Response,
-): Promise<Response<Experiment[], Record<string, any>>> {
+): Promise<void> {
   // Get a list of active experiments for the subject's homepage
   const activeExperiments = await ExperimentDAO.findAllActive();
   const responseData = {
@@ -21,10 +21,13 @@ async function listActiveExperiments(
   };
   logger.info(responseData.msg, responseData.activeExperiments);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function listExperimentsForExperimenter(req: Request, res: Response) {
+async function listExperimentsForExperimenter(
+  req: Request,
+  res: Response,
+): Promise<void> {
   // Get a list of all experiments created by the experimenter
   const experimenterId = req.sessionData._id; // Assuming you have this in your session
   const experiments = await ExperimentDAO.findAllByUser(experimenterId);
@@ -35,10 +38,10 @@ async function listExperimentsForExperimenter(req: Request, res: Response) {
   };
   logger.info(responseData.msg, responseData.experiments);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function addExperiment(req: Request, res: Response) {
+async function addExperiment(req: Request, res: Response): Promise<void> {
   const { title, description, stimuliIds, perceptualDimensionsIds } = req.body;
   const experimenterId = req.sessionData._id;
 
@@ -63,10 +66,10 @@ async function addExperiment(req: Request, res: Response) {
   };
   logger.info(responseData.msg, responseData.createdExperiment);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function editExperiment(req: Request, res: Response) {
+async function editExperiment(req: Request, res: Response): Promise<void> {
   const { experimentId } = req.params;
   const {
     title,
@@ -83,9 +86,7 @@ async function editExperiment(req: Request, res: Response) {
   );
 
   if (!popedExperiment) {
-    return res
-      .status(httpStatusCodes.NOT_FOUND)
-      .json({ error: "Experiment not found" });
+    throw new ApiError(API_ERROR_TYPES.NOT_FOUND, "Experiment not found");
   }
 
   // Shape populated experiment to unpopulated
@@ -139,7 +140,7 @@ async function editExperiment(req: Request, res: Response) {
   };
   logger.info(responseData.msg, responseData.editedExperiment);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 export default {
