@@ -1,6 +1,8 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import isValidReq from "../policies/isValidReq.js";
 import userSchemas from "../db/models/User/user.valSchemas.js";
+import asyncHandler from "express-async-handler";
+import userController from "../controllers/userController.js";
 
 const router = express.Router();
 
@@ -10,9 +12,12 @@ const router = express.Router();
 // @access   Public
 router.post(
   "/signup",
-  express.urlencoded({ limit: "2kb", parameterLimit: 4 }),
+  express.urlencoded({ limit: "2kb", parameterLimit: 4, extended: false }),
   isValidReq(userSchemas.createUserSchema),
-  (req, res) => res.status(200).json("POST: /api/users/signup"),
+  asyncHandler(async (req: Request, res: Response) => {
+    userController.register(req, res);
+    // res.status(200).json("POST: /api/users/signup");
+  }),
 );
 // @route    api/users/login
 // @method   POST
@@ -20,7 +25,7 @@ router.post(
 // @access   Public
 router.post(
   "/login",
-  express.urlencoded({ limit: "1kb", parameterLimit: 2 }),
+  express.urlencoded({ limit: "1kb", parameterLimit: 2, extended: false }),
   isValidReq(userSchemas.credentialsSchema),
   (req, res) => res.status(200).json("POST: /api/users/login"),
 );
