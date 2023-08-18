@@ -36,29 +36,15 @@ const userSchema = new Schema<User>(
   },
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.password) {
-    throw new Error("the password is undefined");
-  }
-  if (!this.isModified("password")) {
-    next();
-  }
-  this.password = await bcrypt.hash(this.password, 10);
-});
-
-userSchema.pre(
-  "updateOne",
-  { document: true, query: false },
-  async function (next) {
-    if (!this.password) {
-      throw new Error("the password is undefined");
-    }
-    if (!this.isModified("password")) {
-      next();
-    }
-    this.password = await bcrypt.hash(this.password, 10);
-  },
-);
+// userSchema.pre("save", async function (next) {
+//   if (!this.password) {
+//     throw new Error("the password is undefined");
+//   }
+//   if (!this.isModified("password")) {
+//     next();
+//   }
+//   this.password = await bcrypt.hash(this.password, 10);
+// });
 
 userSchema.index({ email: 1 }, { unique: true });
 
