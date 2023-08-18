@@ -7,6 +7,7 @@ import ExperimentSessionDAO from "../src/db/daos/ExperimentSessionDAO.js";
 describe("ExperimentSessionDAO - create", () => {
   it("should create a new ExperimentSession and return the created session", async () => {
     const mockSessionData: ExperimentSession = {
+      _id: new mongoose.Types.ObjectId(),
       subject: new mongoose.Types.ObjectId(),
       experiment: new mongoose.Types.ObjectId(),
       isCompleted: true,
@@ -14,6 +15,7 @@ describe("ExperimentSessionDAO - create", () => {
       stimuli_order: [1, 2, 3],
       responses: [
         {
+          _id: new mongoose.Types.ObjectId(),
           stimulus: new mongoose.Types.ObjectId(), // Provide data for responseSchemaWithId
           perceptualDimension: new mongoose.Types.ObjectId(),
           trial_N: 1,

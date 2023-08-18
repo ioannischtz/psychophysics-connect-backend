@@ -1,3 +1,10 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+export const __filename = fileURLToPath(import.meta.url);
+
+export const __dirname = path.dirname(__filename);
+
 export const TIME_CONSTANTS = {
   DAY_HOURS: 24,
   HOUR_MINS: 60,

@@ -143,7 +143,9 @@ async function respondSingle(
   // Get the experiment session
   const experimentSession = await ExperimentSessionDAO.findByUserAndExperiment(
     loggedInUser,
-    experimentId,
+    {
+      _id: new Types.ObjectId(experimentId),
+    },
   );
 
   // Check if the experiment session exists
