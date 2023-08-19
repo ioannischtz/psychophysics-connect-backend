@@ -1,6 +1,12 @@
-import jwt from "jsonwebtoken";
+import jwt, { UserIDJwtPayload } from "jsonwebtoken";
 import { User } from "../db/models/User/user.valSchemas.js";
 import { jwtSecret, jwtValiditySecs } from "../config.js";
+
+declare module "jsonwebtoken" {
+  export interface UserIDJwtPayload extends jwt.JwtPayload {
+    _id: string;
+  }
+}
 
 export type UserWithId = Required<Pick<User, "_id">> & Omit<User, "_id">;
 
