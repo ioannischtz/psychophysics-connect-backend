@@ -10,7 +10,6 @@ import isAuthed, {
   isAuthedSubject,
 } from "../policies/isAuthed.js";
 
-
 const router = express.Router();
 
 const defaultSessionConfig = {
@@ -55,20 +54,15 @@ router.post(
 // @access   Public
 router.post("/logout", asyncHandler(userController.logout));
 
-// @route    api/users/homepage
+// @route    api/users/profile
 // @method   GET
 // @desc     Get the user's (Role=Subject) homepage
 // @access   Private: run isAuthedSubject Policy-Middleware
-// router.get(
-//   "/homepage",
-//   (req, res, next) => {
-//     console.info("Policy: isAuthedSubject()");
-//     next();
-//   },
-//   asyncHandler(async (req: Request, res: Response) => {
-//     await experimentController.listActiveExperiments(req, res);
-//   }),
-// );
+router.get(
+  "/profile",
+  asyncHandler(isAuthedSubject),
+  asyncHandler(userController.getProfile),
+);
 
 // @route    api/users/account
 // @method   PUT
