@@ -10,7 +10,6 @@ import isAuthed, {
   isAuthedSubject,
 } from "../policies/isAuthed.js";
 
-
 const router = express.Router();
 
 const defaultSessionConfig = {
