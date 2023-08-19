@@ -122,7 +122,7 @@ async function getProfile(req: Request, res: Response): Promise<void> {
   }
 
   // fetch user date
-  const user = await UserDAO.findPublicByIdLean(userId);
+  const user = await UserDAO.findPrivateByIdLean(userId);
 
   if (!user) {
     // User not found
