@@ -4,6 +4,8 @@ import asyncHandler from "express-async-handler";
 import { isAuthedSubject } from "../policies/isAuthed.js";
 import experimentController from "../controllers/experimentController.js";
 import experimentSessionController from "../controllers/experimentSessionController.js";
+import experimentSessionValSchemas from "../db/models/ExperimentSession/experimentSession.valSchemas.js";
+import responseValSchemas from "../db/models/Response/response.valSchemas.js";
 
 const router = express.Router();
 
@@ -34,6 +36,7 @@ router.get(
 router.post(
   "/experiment_sessions",
   express.urlencoded({ limit: "1kb", parameterLimit: 1, extended: false }),
+  isValidReq(experimentSessionValSchemas.createExperimentSession),
   asyncHandler(isAuthedSubject),
   asyncHandler(experimentSessionController.newSession),
 );
@@ -45,6 +48,7 @@ router.post(
 router.post(
   "/experiment_sessions/respond_single",
   express.urlencoded({ limit: "20kb", parameterLimit: 5, extended: false }),
+  isValidReq(responseValSchemas.createResponse),
   asyncHandler(isAuthedSubject),
   asyncHandler(experimentSessionController.respondSingle),
 );
