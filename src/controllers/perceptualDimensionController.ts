@@ -2,13 +2,14 @@ import { Request, Response } from "express";
 import PerceptualDimensionDAO from "../db/daos/PerceptualDimensionDAO.js";
 import { PerceptualDimension } from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
 import { Types } from "mongoose";
-import { httpStatusCodes } from "../middleware/errors.js";
+import {
+  API_ERROR_TYPES,
+  ApiError,
+  httpStatusCodes,
+} from "../middleware/errors.js";
 import logger from "../middleware/logger.js";
 
-async function create(
-  req: Request,
-  res: Response,
-): Promise<Response<PerceptualDimension, Record<string, any>>> {
+async function create(req: Request, res: Response): Promise<void> {
   const { title, type, description, mediaAssetIds } = req.body;
   const newPerceptualDimension: Omit<PerceptualDimension, "_id"> = {
     title,
@@ -29,13 +30,10 @@ async function create(
   };
   logger.info(responseData.msg, responseData.createdPerceptualDimension);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function edit(
-  req: Request,
-  res: Response,
-): Promise<Response<PerceptualDimension, Record<string, any>>> {
+async function edit(req: Request, res: Response): Promise<void> {
   const { perceptualDimensionId } = req.params;
   const { title, type, description, mediaAssetsToAdd, mediaAssetsToRemove } =
     req.body;
@@ -45,9 +43,10 @@ async function edit(
   );
 
   if (!existingPerceptualDimension) {
-    return res
-      .status(httpStatusCodes.NOT_FOUND)
-      .json({ error: "PerceptualDimension not found" });
+    throw new ApiError(
+      API_ERROR_TYPES.NOT_FOUND,
+      "PerceptualDimension not found",
+    );
   }
 
   if (title) {
@@ -80,7 +79,7 @@ async function edit(
   );
 
   if (!editedPerceptualDimension) {
-    return res
+    res
       .status(httpStatusCodes.NOT_FOUND)
       .json({ error: "Failed to edit PerceptualDimension" });
   }
@@ -92,20 +91,17 @@ async function edit(
   };
   logger.info(responseData.msg, responseData.editedPerceptualDimension);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function remove(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string }, Record<string, any>>> {
+async function remove(req: Request, res: Response): Promise<void> {
   const { perceptualDimensionId } = req.params;
   const perceptualDimensionDidDelete = await PerceptualDimensionDAO.deleteById(
     new Types.ObjectId(perceptualDimensionId),
   );
 
   if (!perceptualDimensionDidDelete) {
-    return res
+    res
       .status(httpStatusCodes.NOT_FOUND)
       .json({ msg: "ERROR: PerceptualDimension not found" });
   }
@@ -115,13 +111,13 @@ async function remove(
   };
   logger.info(responseData.msg);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function listPerceptualDimensionsForExperiment(
   req: Request,
   res: Response,
-): Promise<Response<PerceptualDimension[], Record<string, any>>> {
+): Promise<void> {
   const { experimentId } = req.params;
 
   const perceptualDimensions = await PerceptualDimensionDAO
@@ -136,13 +132,13 @@ async function listPerceptualDimensionsForExperiment(
   };
   logger.info(responseData.msg, responseData.perceptualDimensions);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function queryPerceptualDimensions(
   req: Request,
   res: Response,
-): Promise<Response<PerceptualDimension[], Record<string, any>>> {
+): Promise<void> {
   const { type, mediaAssetId, experimentId } = req.body;
 
   let queriedPerceptualDimensions: PerceptualDimension[] = [];
@@ -177,7 +173,7 @@ async function queryPerceptualDimensions(
   };
   logger.info(responseData.msg, responseData.queriedPerceptualDimensions);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 export default {

@@ -85,6 +85,13 @@ async function update(experiment: Experiment): Promise<Experiment | null> {
   );
 }
 
+async function deleteById(id: Types.ObjectId): Promise<boolean> {
+  const deleted = await ExperimentModel.findOneAndDelete({ _id: id })
+    .lean()
+    .exec();
+  return !!deleted;
+}
+
 async function findById(
   id: Types.ObjectId,
 ): Promise<ExperimentPopulated | null> {
@@ -195,6 +202,7 @@ async function findAllActiveByUser(
 export default {
   create,
   update,
+  deleteById,
   findById,
   findByTitle,
   findAllByUser,

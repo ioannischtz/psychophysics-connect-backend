@@ -9,6 +9,21 @@ import logger from "../middleware/logger.js";
 import { Experiment } from "../db/models/Experiment/experiment.valSchemas.js";
 import { Types } from "mongoose";
 
+async function getExperimentById(req: Request, res: Response): Promise<void> {
+  const { experimentId } = req.params;
+  const experiment = await ExperimentDAO.findById(
+    new Types.ObjectId(experimentId),
+  );
+  const responseData = {
+    msg: `Fetched experiment with id:${experimentId} successfully`,
+    experiment,
+  };
+
+  logger.info(responseData.msg, responseData.experiment);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
 async function listActiveExperiments(
   req: Request,
   res: Response,
@@ -74,6 +89,7 @@ async function editExperiment(req: Request, res: Response): Promise<void> {
   const {
     title,
     description,
+    isActive,
     stimuliToAdd,
     stimuliToRemove,
     perceptualDimsToAdd,
@@ -111,6 +127,9 @@ async function editExperiment(req: Request, res: Response): Promise<void> {
   if (description) {
     experiment.description = description;
   }
+  if (isActive !== undefined) {
+    experiment.isActive = isActive;
+  }
 
   // Handle adding and removing stimuli
   if (stimuliToAdd) {
@@ -143,9 +162,33 @@ async function editExperiment(req: Request, res: Response): Promise<void> {
   res.status(httpStatusCodes.OK).json(responseData);
 }
 
+async function deleteExperiment(req: Request, res: Response): Promise<void> {
+  const { experimentId } = req.params;
+  const experimentDidDelete: boolean = await ExperimentDAO.deleteById(
+    new Types.ObjectId(experimentId),
+  );
+
+  if (!experimentDidDelete) {
+    throw new ApiError(
+      API_ERROR_TYPES.NOT_FOUND,
+      "The specified experiment was not found. Can't go through the deletion",
+    );
+  }
+
+  const responseData = {
+    msg: "Experiment deleted successfully",
+  };
+
+  logger.info(responseData.msg);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
 export default {
+  getExperimentById,
   listActiveExperiments,
   listExperimentsForExperimenter,
   addExperiment,
   editExperiment,
+  deleteExperiment,
 };
