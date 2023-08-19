@@ -1,30 +1,14 @@
-import express, { CookieOptions } from "express";
+import express from "express";
 import isValidReq from "../policies/isValidReq.js";
 import userSchemas from "../db/models/User/user.valSchemas.js";
 import asyncHandler from "express-async-handler";
 import userController from "../controllers/userController.js";
-import createSession from "../middleware/session.js";
-import { environment, jwtSecret } from "../config.js";
 import isAuthed, {
   isAuthedExperimenter,
   isAuthedSubject,
 } from "../policies/isAuthed.js";
 
 const router = express.Router();
-
-const defaultSessionConfig = {
-  key: "user.sess",
-  cookieOpts: {
-    httpOnly: true,
-    maxAge: 86400000,
-    secure: environment === "production",
-    signed: true, // Important: enable signed cookies,
-    sameSite: "strict",
-  } as CookieOptions,
-  secret: jwtSecret, // Use the jwtSecret from ../config.js
-};
-
-router.use(createSession(defaultSessionConfig));
 
 // @route    api/users/signup
 // @method   POST

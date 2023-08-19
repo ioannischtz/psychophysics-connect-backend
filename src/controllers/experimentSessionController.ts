@@ -21,10 +21,7 @@ import { Types } from "mongoose";
 
 type NewSessionResponse = ExperimentSession;
 
-async function newSession(
-  req: Request,
-  res: Response,
-): Promise<Response<NewSessionResponse>> {
+async function newSession(req: Request, res: Response): Promise<void> {
   const { experimentId } = req.body;
 
   // Get the subject's user ID from (browser/cookie) session data
@@ -75,13 +72,10 @@ async function newSession(
     createdSession,
   );
 
-  return res.status(httpStatusCodes.CREATED).json(createdSession);
+  res.status(httpStatusCodes.CREATED).json(createdSession);
 }
 
-async function getAllByUser(
-  req: Request,
-  res: Response,
-): Promise<Response<ExperimentSessionPopedUser[]>> {
+async function getAllByUser(req: Request, res: Response): Promise<void> {
   const subjectId = req.sessionData._id;
 
   // Check if subject is logged in
@@ -104,7 +98,7 @@ async function getAllByUser(
 
   logger.info(responseData.msg, responseData.experimentSessions);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 type RespondSingleResponse = {
@@ -112,10 +106,7 @@ type RespondSingleResponse = {
   updatedExperimentSession: ExperimentSessionPopulated;
 };
 
-async function respondSingle(
-  req: Request,
-  res: Response,
-): Promise<Response<RespondSingleResponse>> {
+async function respondSingle(req: Request, res: Response): Promise<void> {
   const { responseVal, responseMode, playCount, timeElapsed, perceptualDimId } =
     req.body;
 
@@ -208,7 +199,7 @@ async function respondSingle(
   };
   logger.info(responseData.msg, responseData.updatedExperimentSession);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 // --- Experimenter ---
@@ -216,7 +207,7 @@ async function respondSingle(
 async function getCompletedByExperiment(
   req: Request,
   res: Response,
-): Promise<Response<ExperimentSessionPopedExperiment[]>> {
+): Promise<void> {
   const experimentId = req.params.experimentId;
 
   // Retrieve all completed experiment sessions for the experiment
@@ -232,13 +223,13 @@ async function getCompletedByExperiment(
   };
   logger.info(responseData.msg, responseData.completedSessions);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function getOngoingByExperiment(
   req: Request,
   res: Response,
-): Promise<Response<ExperimentSessionPopedExperiment[]>> {
+): Promise<void> {
   const experimentId = req.params.experimentId;
 
   // Retrieve all completed experiment sessions for the experiment
@@ -254,13 +245,13 @@ async function getOngoingByExperiment(
   };
   logger.info(responseData.msg, responseData.ongoingSessions);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function getResponsesBySessionId(
   req: Request,
   res: Response,
-): Promise<Response<ExperimentSessionPopedExperiment[]>> {
+): Promise<void> {
   const sessionId = req.params.sessionId;
 
   // Retrieve all responses for the experiment-session
@@ -274,13 +265,13 @@ async function getResponsesBySessionId(
   };
   logger.info(responseData.msg, responseData.responses);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function getResponsesByPerceptDim(
   req: Request,
   res: Response,
-): Promise<Response<ExperimentSessionPopedExperiment[]>> {
+): Promise<void> {
   const { perceptualDimId } = req.params;
 
   //  Retrieve all responses for the specified perceptual dimension
@@ -300,7 +291,7 @@ async function getResponsesByPerceptDim(
 async function getResponsesByPerceptDimAndExperiment(
   req: Request,
   res: Response,
-): Promise<Response<ExperimentSessionPopedExperiment[]>> {
+): Promise<void> {
   const { perceptualDimId, experimentId } = req.params;
 
   //  Retrieve all responses for the specified perceptual dimension and experiment
@@ -316,7 +307,7 @@ async function getResponsesByPerceptDimAndExperiment(
   };
   logger.info(responseData.msg, responseData.responses);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 export default {
