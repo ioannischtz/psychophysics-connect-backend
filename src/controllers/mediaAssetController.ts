@@ -2,16 +2,26 @@ import { Request, Response } from "express";
 import MediaAssetDAO, { OptionalMediaAsset } from "../db/daos/MediaAssetDAO.js";
 import { MediaAsset } from "../db/models/MediaAsset/mediaAsset.valSchemas.js";
 import { Types } from "mongoose";
-import { httpStatusCodes } from "../middleware/errors.js";
+import {
+  API_ERROR_TYPES,
+  ApiError,
+  httpStatusCodes,
+} from "../middleware/errors.js";
 import logger from "../middleware/logger.js";
 import PerceptualDimensionDAO from "../db/daos/PerceptualDimensionDAO.js";
-import { PerceptualDimension } from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
-import { MIMEtypes } from "mimetypes.js";
+import {
+  AudioMIMEtypes,
+  ImageMIMEtypes,
+  MIMEtypes,
+  TextMIMEtypes,
+} from "mimetypes.js";
+import persistFileGridFS from "../services/persistFileGridFS.js";
+import { multerDestPath } from "../config.js";
+import deleteFileGridFS from "../services/deleteFileGridFS.js";
+import editFileGridFS from "../services/editFileGridFS.js";
+import downloadFileGridFS from "../services/downloadFileGridFS.js";
 
-async function create(
-  req: Request,
-  res: Response,
-): Promise<Response<MediaAsset, Record<string, any>>> {
+async function create(req: Request, res: Response): Promise<void> {
   const { mimetype, filename } = req.body;
   const newMediaAsset: Omit<MediaAsset, "_id"> = {
     mimetype,
@@ -27,23 +37,95 @@ async function create(
   };
   logger.info(responseData.msg, responseData.createdMediaAsset);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function edit(
-  req: Request,
-  res: Response,
-): Promise<Response<MediaAsset, Record<string, any>>> {
+async function uploadSingle(req: Request, res: Response): Promise<void> {
+  if (!req.file) {
+    throw new ApiError(API_ERROR_TYPES.BAD_REQUEST, "req.file not provided");
+  }
+  const { originalname, mimetype } = req.file as Express.Multer.File;
+
+  type SupportedMIMEtypes = AudioMIMEtypes | ImageMIMEtypes | TextMIMEtypes;
+
+  const fileDidPersist = await persistFileGridFS({
+    fileName: originalname,
+    filePath: `${multerDestPath}/${originalname}`,
+    mimetype: mimetype as SupportedMIMEtypes, // we use a middleware to ensure is supported mimetype
+  });
+
+  if (!fileDidPersist) {
+    throw new ApiError(API_ERROR_TYPES.INTERNAL, "Upload failed");
+  }
+
+  const createdMediaAsset = await MediaAssetDAO.create({
+    mimetype,
+    filename: originalname,
+  } as MediaAsset);
+
+  const responseData = {
+    msg: `Uploaded a new MediaAsset successfully`,
+    createdMediaAsset,
+  };
+  logger.info(responseData.msg, responseData.createdMediaAsset);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function uploadMulti(req: Request, res: Response): Promise<void> {
+  if (!req.files) {
+    throw new ApiError(API_ERROR_TYPES.BAD_REQUEST, "req.files not provided");
+  }
+  const filesToUp = req.files as Express.Multer.File[];
+
+  type SupportedMIMEtypes = AudioMIMEtypes | ImageMIMEtypes | TextMIMEtypes;
+
+  let createdMediaAssets: MediaAsset[] = [];
+
+  for (let idx = 0; idx < filesToUp.length; idx++) {
+    const { originalname, mimetype } = filesToUp[idx];
+
+    const fileDidPersist = await persistFileGridFS({
+      fileName: originalname,
+      filePath: `${multerDestPath}/${originalname}`,
+      mimetype: mimetype as SupportedMIMEtypes, // we use a middleware to ensure is supported mimetype
+    });
+
+    if (!fileDidPersist) {
+      throw new ApiError(API_ERROR_TYPES.INTERNAL, "Upload failed");
+    }
+
+    const createdMediaAsset = await MediaAssetDAO.create({
+      mimetype,
+      filename: originalname,
+    } as MediaAsset);
+
+    if (!createdMediaAsset) {
+      throw new ApiError(
+        API_ERROR_TYPES.INTERNAL,
+        "Failed to create MediaAsset",
+      );
+    }
+
+    createdMediaAssets[idx] = createdMediaAsset;
+  }
+
+  const responseData = {
+    msg: `Uploaded MediaAsset files successfully`,
+    createdMediaAssets,
+  };
+  logger.info(responseData.msg, responseData.createdMediaAssets);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function edit(req: Request, res: Response): Promise<void> {
   const { mediaAssetId } = req.params;
-  const { mimetype, filename } = req.body;
+  const { filename } = req.body;
 
   let mediaAsset: OptionalMediaAsset = {
     _id: new Types.ObjectId(mediaAssetId),
   };
-
-  if (mimetype) {
-    mediaAsset.mimetype = mimetype;
-  }
 
   if (filename) {
     mediaAsset.filename = filename;
@@ -52,9 +134,25 @@ async function edit(
   const editedMediaAsset = await MediaAssetDAO.update(mediaAsset);
 
   if (!editedMediaAsset) {
-    return res
-      .status(httpStatusCodes.NOT_FOUND)
-      .json({ error: "Failed to edit MediaAsset" });
+    throw new ApiError(
+      API_ERROR_TYPES.NOT_FOUND,
+      "Failed to edit the MediaAsset",
+    );
+  }
+
+  const fileEdited = await editFileGridFS(
+    {
+      filename: editedMediaAsset.filename as string,
+      mimetype: editedMediaAsset.mimetype as
+        | AudioMIMEtypes
+        | ImageMIMEtypes
+        | TextMIMEtypes,
+    },
+    filename,
+  );
+
+  if (!fileEdited) {
+    throw new ApiError(API_ERROR_TYPES.INTERNAL, "File edit failed");
   }
 
   const responseData = {
@@ -63,22 +161,39 @@ async function edit(
   };
   logger.info(responseData.msg, responseData.editedMediaAsset);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function remove(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string }, Record<string, any>>> {
+async function remove(req: Request, res: Response): Promise<void> {
   const { mediaAssetId } = req.params;
+
+  // Find the media asset by ID
+  const mediaAsset = await MediaAssetDAO.findById(
+    new Types.ObjectId(mediaAssetId),
+  );
+
+  if (!mediaAsset) {
+    throw new ApiError(API_ERROR_TYPES.NOT_FOUND, "MediaAsset not found");
+  }
+
   const mediaAssetDidDelete = await MediaAssetDAO.deleteById(
     new Types.ObjectId(mediaAssetId),
   );
 
   if (!mediaAssetDidDelete) {
-    return res
-      .status(httpStatusCodes.NOT_FOUND)
-      .json({ msg: "ERROR: MediaAsset not found" });
+    throw new ApiError(API_ERROR_TYPES.INTERNAL, "MediaAsset failed to delete");
+  }
+
+  const fileDidDelete = await deleteFileGridFS(
+    mediaAsset.filename as string,
+    mediaAsset.mimetype as AudioMIMEtypes | ImageMIMEtypes | TextMIMEtypes,
+  );
+
+  if (!fileDidDelete) {
+    throw new ApiError(
+      API_ERROR_TYPES.INTERNAL,
+      "underlying file failed to delete",
+    );
   }
 
   const responseData = {
@@ -86,7 +201,26 @@ async function remove(
   };
   logger.info(responseData.msg);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function downloadSingle(req: Request, res: Response): Promise<void> {
+  const { mediaAssetId } = req.params;
+  const mediaAsset = await MediaAssetDAO.findById(
+    new Types.ObjectId(mediaAssetId),
+  );
+  if (!mediaAsset) {
+    throw new ApiError(API_ERROR_TYPES.NOT_FOUND, "MediaAsset not found");
+  }
+
+  res.set("content-type", mediaAsset.mimetype);
+  res.set("accept-ranges", "bytes");
+
+  await downloadFileGridFS(
+    mediaAsset.filename as string,
+    mediaAsset.mimetype as AudioMIMEtypes | ImageMIMEtypes | TextMIMEtypes,
+    res,
+  );
 }
 
 async function listMediaAssetsByType(
@@ -108,10 +242,10 @@ async function listMediaAssetsByType(
 async function listMediaAssetsForPerceptualDimension(
   req: Request,
   res: Response,
-): Promise<Response<MediaAsset[], Record<string, any>>> {
-  const { perceptualDimensionId } = req.body;
+): Promise<void> {
+  const { perceptualDimensionId } = req.params;
   const mediaAssets = await MediaAssetDAO.findAllByPerceptualDimension(
-    perceptualDimensionId,
+    new Types.ObjectId(perceptualDimensionId),
   );
 
   const responseData = {
@@ -121,14 +255,11 @@ async function listMediaAssetsForPerceptualDimension(
   };
   logger.info(responseData.msg, responseData.mediaAssets);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function queryMediaAssets(
-  req: Request,
-  res: Response,
-): Promise<Response<MediaAsset[], Record<string, any>>> {
-  const { mimetype, perceptualDimensionId } = req.body;
+async function queryMediaAssets(req: Request, res: Response): Promise<void> {
+  const { mimetype, perceptualDimensionId } = req.query;
 
   // Prepare filter criteria based on request parameters
   const filterCriteria: Record<string, any> = {};
@@ -142,7 +273,7 @@ async function queryMediaAssets(
     );
 
     if (!perceptualDimension) {
-      return res
+      res
         .status(httpStatusCodes.NOT_FOUND)
         .json({ error: "PerceptualDimension not found" });
     }
@@ -190,11 +321,13 @@ async function queryMediaAssets(
   };
   logger.info(responseData.msg, responseData.mediaAssets);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 export default {
-  create,
+  uploadSingle,
+  uploadMulti,
+  downloadSingle,
   edit,
   remove,
   listMediaAssetsByType,

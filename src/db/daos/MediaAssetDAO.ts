@@ -7,7 +7,7 @@ const MEDIAASSET_FIELDS = "_id mimetype filename";
 const STIMULI_FIELDS = "_id title type description";
 const PERCEPTUAL_DIMENSIONS_FIELDS = "_id title type description";
 
-type MediaAssetType = "text" | "img" | "audio";
+export type MediaAssetType = "text" | "img" | "audio";
 
 function getPopulateOptions() {
   return [

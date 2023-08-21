@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { Types } from "mongoose";
 import { AnyZodObject, z, ZodEffects } from "zod";
 
-const VALIDATION_SOURCE = {
+export const VALIDATION_SOURCE = {
   BODY: "body",
   HEADER: "header",
   QUERY: "query",

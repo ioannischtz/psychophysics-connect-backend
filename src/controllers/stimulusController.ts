@@ -1,14 +1,18 @@
 import { Request, Response } from "express";
-import StimulusDAO, { OptionalStimulus } from "../db/daos/StimulusDAO.js";
+import StimulusDAO, {
+  OptionalStimulus,
+  StimulusType,
+} from "../db/daos/StimulusDAO.js";
 import { Stimulus } from "../db/models/Stimulus/stimulus.valSchemas.js";
 import { Types } from "mongoose";
-import { httpStatusCodes } from "../middleware/errors.js";
+import {
+  API_ERROR_TYPES,
+  ApiError,
+  httpStatusCodes,
+} from "../middleware/errors.js";
 import logger from "../middleware/logger.js";
 
-async function create(
-  req: Request,
-  res: Response,
-): Promise<Response<Stimulus, Record<string, any>>> {
+async function create(req: Request, res: Response): Promise<void> {
   const { title, type, description, mediaAssetId } = req.body;
   const newStimulus: Omit<Stimulus, "_id"> = {
     title,
@@ -25,13 +29,10 @@ async function create(
   };
   logger.info(responseData.msg, responseData.createdStimulus);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function edit(
-  req: Request,
-  res: Response,
-): Promise<Response<Stimulus, Record<string, any>>> {
+async function edit(req: Request, res: Response): Promise<void> {
   const { stimulusId } = req.params;
   const { title, type, description, mediaAssetId } = req.body;
 
@@ -58,9 +59,7 @@ async function edit(
   const editedStimulus = await StimulusDAO.update(stimulus);
 
   if (!editedStimulus) {
-    return res
-      .status(httpStatusCodes.NOT_FOUND)
-      .json({ error: "Stimulus not found" });
+    res.status(httpStatusCodes.NOT_FOUND).json({ error: "Stimulus not found" });
   }
 
   const responseData = {
@@ -69,20 +68,17 @@ async function edit(
   };
   logger.info(responseData.msg, responseData.editedStimulus);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function remove(
-  req: Request,
-  res: Response,
-): Promise<Response<{ msg: string }, Record<string, any>>> {
+async function remove(req: Request, res: Response): Promise<void> {
   const { stimulusId } = req.params;
   const stimulusDidDelete = await StimulusDAO.deleteById(
     new Types.ObjectId(stimulusId),
   );
 
   if (!stimulusDidDelete) {
-    return res
+    res
       .status(httpStatusCodes.NOT_FOUND)
       .json({ msg: "ERROR: Stimulus not found" });
   }
@@ -92,13 +88,31 @@ async function remove(
   };
   logger.info(responseData.msg);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function getStimulusById(req: Request, res: Response): Promise<void> {
+  const { stimulusId } = req.params;
+  const stimulus = await StimulusDAO.findById(new Types.ObjectId(stimulusId));
+
+  if (!stimulus) {
+    throw new ApiError(API_ERROR_TYPES.NOT_FOUND, "Stimulus not found");
+  }
+
+  const responseData = {
+    msg: "Fetched the specified stimulus succesfully",
+    stimulus,
+  };
+
+  logger.info(responseData.stimulus, responseData.msg);
+
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function listStimuliForExperiment(
   req: Request,
   res: Response,
-): Promise<Response<Stimulus[], Record<string, any>>> {
+): Promise<void> {
   const { experimentId } = req.params;
 
   const stimuli = await StimulusDAO.findAllByExperimentId(
@@ -111,14 +125,43 @@ async function listStimuliForExperiment(
   };
   logger.info(responseData.msg, responseData.stimuli);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
-async function queryStimuli(
+async function listAllStimuliOfType(
   req: Request,
   res: Response,
-): Promise<Response<Stimulus[], Record<string, any>>> {
-  const { type, mediaAssetId, experimentId } = req.body;
+): Promise<void> {
+  const { type } = req.params;
+  const stimuli = await StimulusDAO.findAllByType(type as StimulusType);
+  const responseData = {
+    msg: `Fetched all stimuli of type:${type}`,
+    stimuli,
+  };
+
+  logger.info(responseData.stimuli, responseData.msg);
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function listStimuliForMediaAsset(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { mediaAssetId } = req.params;
+  const stimuli = await StimulusDAO.findAllByMediaAsset({
+    _id: new Types.ObjectId(mediaAssetId),
+  });
+  const responseData = {
+    msg: `Fetched all stimuli associated with the asset:${mediaAssetId}`,
+    stimuli,
+  };
+
+  logger.info(responseData.stimuli, responseData.msg);
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function queryStimuli(req: Request, res: Response): Promise<void> {
+  const { type, mediaAssetId, experimentId } = req.query;
 
   let queriedStimuli: Stimulus[] = [];
 
@@ -149,13 +192,16 @@ async function queryStimuli(
   };
   logger.info(responseData.msg, responseData.queriedStimuli);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 export default {
   create,
   edit,
   remove,
+  getStimulusById,
   listStimuliForExperiment,
+  listStimuliForMediaAsset,
+  listAllStimuliOfType,
   queryStimuli,
 };

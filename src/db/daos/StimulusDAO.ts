@@ -7,7 +7,7 @@ const STIMULUS_FIELDS = "_id title type description";
 const MEDIAASSET_FIELDS = "_id mimetype filename";
 const EXPERIMENTS_FIELDS = "_id title description isActive";
 
-type StimulusType = "text" | "img" | "audio";
+export type StimulusType = "text" | "img" | "audio";
 
 function getPopulateOptions() {
   return [

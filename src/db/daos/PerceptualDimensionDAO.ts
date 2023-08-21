@@ -6,7 +6,7 @@ const PERCEPTUAL_DIMENSION_FIELDS = "_id title type description";
 const MEDIAASSETS_FIELDS = "_id mimetype filename";
 const EXPERIMENTS_FIELDS = "_id title description isActive";
 
-type PerceptualDimensionType = "text" | "img" | "audio";
+export type PerceptualDimensionType = "text" | "img" | "audio";
 
 function getPopulateOptions() {
   return [

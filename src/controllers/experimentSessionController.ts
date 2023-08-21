@@ -268,6 +268,47 @@ async function getResponsesBySessionId(
   res.status(httpStatusCodes.OK).json(responseData);
 }
 
+async function getResponsesByExperimentId(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { experimentId } = req.params;
+
+  // Retrieve all responses for the specified experiment
+  const responses = await ExperimentSessionDAO.getResponsesByExperimentId(
+    new Types.ObjectId(experimentId),
+  );
+
+  const responseData = {
+    msg: "Fetched all responses for the specified experiment",
+    responses,
+  };
+  logger.info(responseData.msg, responseData.responses);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function getResponsesByUserAndExperiment(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { experimentId, subjectId } = req.params;
+
+  // Retrieve all response for the specified subject for the specified experiment
+  const responses = await ExperimentSessionDAO.getResponsesByUserAndExperiment(
+    new Types.ObjectId(experimentId),
+    new Types.ObjectId(subjectId),
+  );
+
+  const responseData = {
+    msg: "Fetched all responses for the specified user and experiment",
+    responses,
+  };
+  logger.info(responseData.msg, responseData.responses);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
 async function getResponsesByPerceptDim(
   req: Request,
   res: Response,
@@ -317,6 +358,8 @@ export default {
   getCompletedByExperiment,
   getOngoingByExperiment,
   getResponsesBySessionId,
+  getResponsesByExperimentId,
+  getResponsesByUserAndExperiment,
   getResponsesByPerceptDim,
   getResponsesByPerceptDimAndExperiment,
 };

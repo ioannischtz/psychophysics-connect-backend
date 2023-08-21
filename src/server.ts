@@ -1,13 +1,11 @@
 import express, { CookieOptions } from "express";
-import initDB from "./db/initDB.js";
+import { dbConnection } from "./db/initDB.js";
 import userRoutes from "./routes/users.js";
 import homepageRoutes from "./routes/homepage.js";
 import { environment, jwtSecret, port } from "./config.js";
 import bodyParser from "./middleware/bodyParser.js";
 import { Middleware } from "middleware.js";
 import createSession from "./middleware/session.js";
-
-const connection = await initDB();
 
 const app = express();
 
