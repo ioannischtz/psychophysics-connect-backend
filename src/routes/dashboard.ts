@@ -25,13 +25,19 @@ router.get(
   asyncHandler(experimentController.listExperimentsForExperimenter),
 );
 
-// @route    api/dashboard/experiments/:id
+// @route    api/dashboard/experiments/:experimentId
 // @method   GET
 // @desc     Get the experiment specified by id
 // @access   Private: run isAuthedExperimenter Policy-Middleware
 router.get(
   "/experiments/:experimentId",
   asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      experimentId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
   asyncHandler(experimentController.getExperimentById),
 );
 
@@ -74,6 +80,10 @@ router.patch(
   "/experiments/:experimentId",
   express.urlencoded({ limit: "40kb", parameterLimit: 7, extended: false }),
   asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({ experimentId: z.custom<Types.ObjectId>() }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
   isValidReq(editExperimentValSchema),
   asyncHandler(experimentController.editExperiment),
 );
@@ -85,6 +95,10 @@ router.patch(
 router.delete(
   "/experiments/:experimentId",
   asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({ experimentId: z.custom<Types.ObjectId>() }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
   asyncHandler(experimentController.deleteExperiment),
 );
 
@@ -121,7 +135,7 @@ router.get(
   asyncHandler(experimentSessionController.getResponsesByUserAndExperiment),
 );
 
-// @route    api/dashboard/experiments/:id/stimuli
+// @route    api/dashboard/experiments/:experimentId/stimuli
 // @method   GET
 // @desc     Get all the stimuli associated with the specified experiment
 // @access   Private: run isAuthedExperimenter Policy-Middleware
@@ -137,7 +151,7 @@ router.get(
   asyncHandler(stimulusController.listStimuliForExperiment),
 );
 
-// @route    api/dashboard/experiments/:id/perceptualDimensions
+// @route    api/dashboard/experiments/:experimentId/perceptualDimensions
 // @method   GET
 // @desc     Get all the perceptualDimensions associated with the specified experiment
 // @access   Private: run isAuthedExperimenter Policy-Middleware
@@ -167,7 +181,18 @@ router.get(
     z.object({
       type: z.enum(typesEnum),
     }),
+    VALIDATION_SOURCE.PARAMS,
   ),
+  asyncHandler(stimulusController.listAllStimuliOfType),
+);
+
+// @route    api/dashboard/stimuli
+// @method   GET
+// @desc     Get stimuli by query
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.get(
+  "/stimuli",
+  asyncHandler(isAuthedExperimenter),
   asyncHandler(stimulusController.listAllStimuliOfType),
 );
 
@@ -203,6 +228,7 @@ router.get(
     z.object({
       stimulusId: z.custom<Types.ObjectId>(),
     }),
+    VALIDATION_SOURCE.PARAMS,
   ),
   asyncHandler(stimulusController.getStimulusById),
 );
@@ -216,6 +242,12 @@ router.patch(
   "/stimuli/:stimulusId",
   asyncHandler(isAuthedExperimenter),
   express.urlencoded({ limit: "20kb", parameterLimit: 4, extended: false }),
+  isValidReq(
+    z.object({
+      stimulusId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
   isValidReq(editStimulusSchema),
   asyncHandler(stimulusController.edit),
 );
@@ -231,6 +263,7 @@ router.delete(
     z.object({
       stimulusId: z.custom<Types.ObjectId>(),
     }),
+    VALIDATION_SOURCE.PARAMS,
   ),
   asyncHandler(stimulusController.remove),
 );
@@ -247,6 +280,7 @@ router.get(
     z.object({
       type: z.enum(typesEnum),
     }),
+    VALIDATION_SOURCE.PARAMS,
   ),
   asyncHandler(perceptualDimensionController.listAllPerceptualDimensionsOfType),
 );
@@ -281,6 +315,12 @@ router.patch(
   "/perceptualDimensions/:perceptualDimensionId",
   asyncHandler(isAuthedExperimenter),
   express.urlencoded({ limit: "20kb", parameterLimit: 4, extended: false }),
+  isValidReq(
+    z.object({
+      perceptualDimensionId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
   isValidReq(editPerceptualDimensionSchema),
   asyncHandler(perceptualDimensionController.edit),
 );
@@ -295,6 +335,7 @@ router.delete(
     z.object({
       perceptualDimensionId: z.custom<Types.ObjectId>(),
     }),
+    VALIDATION_SOURCE.PARAMS,
   ),
   asyncHandler(perceptualDimensionController.remove),
 );
