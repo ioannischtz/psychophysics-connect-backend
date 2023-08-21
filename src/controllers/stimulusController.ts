@@ -143,8 +143,25 @@ async function listAllStimuliOfType(
   res.status(httpStatusCodes.OK).json(responseData);
 }
 
+async function listStimuliForMediaAsset(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { mediaAssetId } = req.params;
+  const stimuli = await StimulusDAO.findAllByMediaAsset({
+    _id: new Types.ObjectId(mediaAssetId),
+  });
+  const responseData = {
+    msg: `Fetched all stimuli associated with the asset:${mediaAssetId}`,
+    stimuli,
+  };
+
+  logger.info(responseData.stimuli, responseData.msg);
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
 async function queryStimuli(req: Request, res: Response): Promise<void> {
-  const { type, mediaAssetId, experimentId } = req.body;
+  const { type, mediaAssetId, experimentId } = req.query;
 
   let queriedStimuli: Stimulus[] = [];
 
@@ -184,6 +201,7 @@ export default {
   remove,
   getStimulusById,
   listStimuliForExperiment,
+  listStimuliForMediaAsset,
   listAllStimuliOfType,
   queryStimuli,
 };

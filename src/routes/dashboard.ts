@@ -9,9 +9,12 @@ import { Types } from "mongoose";
 import experimentSessionController from "../controllers/experimentSessionController.js";
 import stimulusController from "../controllers/stimulusController.js";
 import perceptualDimensionController from "../controllers/perceptualDimensionController.js";
-import { StimulusType } from "../db/daos/StimulusDAO.js";
 import stimulusValSchemas from "../db/models/Stimulus/stimulus.valSchemas.js";
 import perceptualDimensionValSchemas from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
+import mediaAssetController from "../controllers/mediaAssetController.js";
+import mediaAssetValSchemas from "../db/models/MediaAsset/mediaAsset.valSchemas.js";
+import multer from "multer";
+import { multerDestPath } from "../config.js";
 
 const router = express.Router();
 
@@ -193,7 +196,15 @@ router.get(
 router.get(
   "/stimuli",
   asyncHandler(isAuthedExperimenter),
-  asyncHandler(stimulusController.listAllStimuliOfType),
+  isValidReq(
+    z.object({
+      type: z.enum(typesEnum),
+      mediaAssetId: z.custom<Types.ObjectId>(),
+      experimentId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.QUERY,
+  ),
+  asyncHandler(stimulusController.queryStimuli),
 );
 
 // @route    api/dashboard/stimuli
@@ -278,11 +289,29 @@ router.get(
   asyncHandler(isAuthedExperimenter),
   isValidReq(
     z.object({
-      type: z.enum(typesEnum),
+      type: z.enum(perceptDimsTypes),
     }),
     VALIDATION_SOURCE.PARAMS,
   ),
   asyncHandler(perceptualDimensionController.listAllPerceptualDimensionsOfType),
+);
+
+// @route    api/dashboard/perceptualDimensions
+// @method   GET
+// @desc     Get perceptualDimensions by query
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.get(
+  "/perceptualDimensions",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      type: z.enum(perceptDimsTypes),
+      mediaAssetId: z.custom<Types.ObjectId>(),
+      experimentId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.QUERY,
+  ),
+  asyncHandler(perceptualDimensionController.queryPerceptualDimensions),
 );
 
 // @route    api/dashboard/perceptualDimensions
@@ -306,6 +335,7 @@ router.post(
   isValidReq(createPerceptualDimensionSchema),
   asyncHandler(perceptualDimensionController.create),
 );
+
 // @route    api/dashboard/perceptualDimensions/:perceptualDimensionId
 // @method   PATCH
 // @desc     Patch(update) the specified perceptualDimension
@@ -324,6 +354,7 @@ router.patch(
   isValidReq(editPerceptualDimensionSchema),
   asyncHandler(perceptualDimensionController.edit),
 );
+
 // @route    api/dashboard/perceptualDimensions/:perceptualDimensionId
 // @method   DELETE
 // @desc     Delete the (specified by id) perceptualDimension
@@ -339,22 +370,139 @@ router.delete(
   ),
   asyncHandler(perceptualDimensionController.remove),
 );
+
+// @route    api/dashboard/perceptualDimensions/:perceptualDimensionId/media_assets
+// @method   GET
+// @desc     Patch(update) the specified perceptualDimension
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.get(
+  "/perceptualDimensions/:perceptualDimensionId.media_assets",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      perceptualDimensionId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
+  asyncHandler(mediaAssetController.listMediaAssetsForPerceptualDimension),
+);
+
 // @route    api/dashboard/media_assets
 // @method   GET
-// @desc     Get all the media_assets created by the user (Role=experimenter)
+// @desc     List all media_assets by query
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const mediaAssetTypes = typesEnum;
+router.get(
+  "/media_assets",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      mimetype: z.enum(mediaAssetTypes),
+      perceptualDimensionId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.QUERY,
+  ),
+  asyncHandler(mediaAssetController.queryMediaAssets),
+);
+
+// @route    api/dashboard/media_assets/:mediaAssetId/stimuli
+// @method   GET
+// @desc     List all stimuli associated with the specified media_asset
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.get(
+  "/media_assets/:mediaAssetId/stimuli",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      mediaAssetId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
+  asyncHandler(stimulusController.listStimuliForMediaAsset),
+);
+
+const upload = multer({
+  dest: multerDestPath,
+  limits: { fileSize: 6291456 },
+});
 
 // @route    api/dashboard/media_assets
 // @method   POST
 // @desc     Post a new media_asset
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const createMediaAssetSchema = mediaAssetValSchemas.createMediaAsset.pick({
+  mimetype: true,
+  filename: true,
+});
+
+router.post(
+  "/media_assets",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "10kb", parameterLimit: 2, extended: false }),
+  upload.single("media_asset"),
+  isValidReq(createMediaAssetSchema),
+  asyncHandler(mediaAssetController.uploadSingle),
+);
+
+// @route    api/dashboard/media_assets/multi
+// @method   POST
+// @desc     Post a new media_asset
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.post(
+  "/media_assets/multi",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "1mb", extended: true }),
+  upload.array("media_assets", 10),
+  asyncHandler(mediaAssetController.uploadMulti),
+);
 
 // @route    api/dashboard/media_assets/:media_assetId
 // @method   PATCH
 // @desc     Patch(update) the specified media_asset
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const editMediaAssetSchema = createMediaAssetSchema;
+router.patch(
+  "/media_assets/:mediaAssetId",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "10kb", parameterLimit: 2, extended: false }),
+  isValidReq(
+    z.object({
+      mediaAssetId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
+  isValidReq(editMediaAssetSchema),
+  asyncHandler(mediaAssetController.edit),
+);
 
-// @route    api/dashboard/media_assets/:media_assetId
+// @route    api/dashboard/media_assets/:mediaAssetId/download
+// @method   GET
+// @desc     Download the specified media_asset
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.get(
+  "media_assets/:mediaAssetId/download",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      mediaAssetId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
+  asyncHandler(mediaAssetController.downloadSingle),
+);
+
+// @route    api/dashboard/media_assets/:mediaAssetId
 // @method   DELETE
 // @desc     Delete the (specified by id) media_asset
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+router.delete(
+  "/media_assets/:mediaAssetId",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      mediaAssetId: z.custom<Types.ObjectId>(),
+    }),
+    VALIDATION_SOURCE.PARAMS,
+  ),
+  asyncHandler(mediaAssetController.remove),
+);

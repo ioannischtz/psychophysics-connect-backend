@@ -158,7 +158,7 @@ async function queryPerceptualDimensions(
   req: Request,
   res: Response,
 ): Promise<void> {
-  const { type, mediaAssetId, experimentId } = req.body;
+  const { type, mediaAssetId, experimentId } = req.query;
 
   let queriedPerceptualDimensions: PerceptualDimension[] = [];
 

@@ -7,6 +7,10 @@ export const textMimeTypes = [
 
 declare type TextMIMEtypes = (typeof textMimeTypes)[number];
 
+export function isTextMIMEtype(mimetype: string): mimetype is TextMIMEtypes {
+  return textMimeTypes.includes(mimetype);
+}
+
 export const audioMimeTypes = [
   "audio/aac",
   "audio/mpeg",
@@ -17,6 +21,10 @@ export const audioMimeTypes = [
 
 declare type AudioMIMEtypes = (typeof audioMimeTypes)[number];
 
+export function isAudioMIMEtype(mimetype: string): mimetype is AudioMIMEtypes {
+  return audioMimeTypes.includes(mimetype);
+}
+
 export const imageMimeTypes = [
   "image/bmp",
   "image/gif",
@@ -26,6 +34,10 @@ export const imageMimeTypes = [
 ] as const;
 
 declare type ImageMIMEtypes = (typeof imageMimeTypes)[number];
+
+export function isImageMIMEtype(mimetype: string): mimetype is ImageMIMEtypes {
+  return imageMimeTypes.includes(mimetype);
+}
 
 export const videoMimeTypes = [
   "video/mpeg",
@@ -38,6 +50,10 @@ export const videoMimeTypes = [
 
 declare type VideoMIMEtypes = (typeof videoMimeTypes)[number];
 
+export function isVideoMIMEtype(mimetype: string): mimetype is VideoMIMEtypes {
+  return videoMimeTypes.includes(mimetype);
+}
+
 export const applicationMimeTypes = [
   "application/octet-stream",
   "application/gzip",
@@ -48,6 +64,12 @@ export const applicationMimeTypes = [
 ] as const;
 
 declare type ApplicationMIMEtypes = (typeof applicationMimeTypes)[number];
+
+export function isApplicationMIMEtype(
+  mimetype: string,
+): mimetype is ApplicationIMEtypes {
+  return applicationMimeTypes.includes(mimetype);
+}
 
 export const mimeTypes = [
   ...textMimeTypes,

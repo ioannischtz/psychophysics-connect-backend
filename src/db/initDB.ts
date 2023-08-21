@@ -49,4 +49,4 @@ async function initDB(): Promise<Connection> {
   return mongoose.connection;
 }
 
-export default initDB;
+export const dbConnection = await initDB();
