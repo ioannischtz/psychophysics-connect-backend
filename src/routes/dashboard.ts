@@ -9,6 +9,9 @@ import { Types } from "mongoose";
 import experimentSessionController from "../controllers/experimentSessionController.js";
 import stimulusController from "../controllers/stimulusController.js";
 import perceptualDimensionController from "../controllers/perceptualDimensionController.js";
+import { StimulusType } from "../db/daos/StimulusDAO.js";
+import stimulusValSchemas from "../db/models/Stimulus/stimulus.valSchemas.js";
+import perceptualDimensionValSchemas from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
 
 const router = express.Router();
 
@@ -152,46 +155,149 @@ router.get(
   ),
 );
 
-// @route    api/dashboard/stimuli
+// @route    api/dashboard/stimuli/types/:type
 // @method   GET
-// @desc     Get all the stimuli created by the user (Role=experimenter)
+// @desc     Get all the stimuli of the specified type
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const typesEnum = ["text", "img", "audio"] as const;
+router.get(
+  "/stimuli/types/:type",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      type: z.enum(typesEnum),
+    }),
+  ),
+  asyncHandler(stimulusController.listAllStimuliOfType),
+);
 
 // @route    api/dashboard/stimuli
 // @method   POST
 // @desc     Post a new stimulus
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const createStimulusSchema = stimulusValSchemas.createStimulus
+  .pick({
+    title: true,
+    type: true,
+    description: true,
+  })
+  .extend({
+    mediaAssetId: z.custom<Types.ObjectId>(),
+  });
+router.post(
+  "/stimuli",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "20kb", parameterLimit: 4, extended: false }),
+  isValidReq(createStimulusSchema),
+  asyncHandler(stimulusController.create),
+);
+
+// @route    api/dashboard/stimuli/:stimulusId
+// @method   GET
+// @desc     Get the specified stimulus
+// @access   Private: run isAuthedExperimenter Policy-Middleware
+router.get(
+  "/stimuli/:stimulusId",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      stimulusId: z.custom<Types.ObjectId>(),
+    }),
+  ),
+  asyncHandler(stimulusController.getStimulusById),
+);
 
 // @route    api/dashboard/stimuli/:stimulusId
 // @method   PATCH
 // @desc     Patch(update) the specified stimulus
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const editStimulusSchema = createStimulusSchema;
+router.patch(
+  "/stimuli/:stimulusId",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "20kb", parameterLimit: 4, extended: false }),
+  isValidReq(editStimulusSchema),
+  asyncHandler(stimulusController.edit),
+);
 
 // @route    api/dashboard/stimuli/:stimulusId
 // @method   DELETE
 // @desc     Delete the (specified by id) stimulus
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+router.delete(
+  "/stimuli/:stimulusId",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      stimulusId: z.custom<Types.ObjectId>(),
+    }),
+  ),
+  asyncHandler(stimulusController.remove),
+);
 
-// @route    api/dashboard/perceptualDimensions
+// @route    api/dashboard/perceptualDimensions/types/:type
 // @method   GET
-// @desc     Get all the perceptualDimensions created by the user (Role=experimenter)
+// @desc     Get all the perceptualDimensions of the specified type
 // @access   Private: run isAuthedExperimenter Policy-Middleware
+const perceptDimsTypes = typesEnum;
+router.get(
+  "/perceptualDimensions/types/:type",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      type: z.enum(typesEnum),
+    }),
+  ),
+  asyncHandler(perceptualDimensionController.listAllPerceptualDimensionsOfType),
+);
 
 // @route    api/dashboard/perceptualDimensions
 // @method   POST
 // @desc     Post a new perceptualDimension
 // @access   Private: run isAuthedExperimenter Policy-Middleware
-
+const createPerceptualDimensionSchema = perceptualDimensionValSchemas
+  .createperceptualDimension
+  .pick({
+    title: true,
+    type: true,
+    description: true,
+  })
+  .extend({
+    mediaAssetId: z.custom<Types.ObjectId>(),
+  });
+router.post(
+  "/perceptualDimensions",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "20kb", parameterLimit: 4, extended: false }),
+  isValidReq(createPerceptualDimensionSchema),
+  asyncHandler(perceptualDimensionController.create),
+);
 // @route    api/dashboard/perceptualDimensions/:perceptualDimensionId
 // @method   PATCH
 // @desc     Patch(update) the specified perceptualDimension
 // @access   Private: run isAuthedExperimenter Policy-Middleware
-
+const editPerceptualDimensionSchema = createPerceptualDimensionSchema;
+router.patch(
+  "/perceptualDimensions/:perceptualDimensionId",
+  asyncHandler(isAuthedExperimenter),
+  express.urlencoded({ limit: "20kb", parameterLimit: 4, extended: false }),
+  isValidReq(editPerceptualDimensionSchema),
+  asyncHandler(perceptualDimensionController.edit),
+);
 // @route    api/dashboard/perceptualDimensions/:perceptualDimensionId
 // @method   DELETE
 // @desc     Delete the (specified by id) perceptualDimension
 // @access   Private: run isAuthedExperimenter Policy-Middleware
-
+router.delete(
+  "/perceptualDimensions/:perceptualDimensionId",
+  asyncHandler(isAuthedExperimenter),
+  isValidReq(
+    z.object({
+      perceptualDimensionId: z.custom<Types.ObjectId>(),
+    }),
+  ),
+  asyncHandler(perceptualDimensionController.remove),
+);
 // @route    api/dashboard/media_assets
 // @method   GET
 // @desc     Get all the media_assets created by the user (Role=experimenter)

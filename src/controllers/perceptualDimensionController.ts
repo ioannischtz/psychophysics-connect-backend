@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import PerceptualDimensionDAO from "../db/daos/PerceptualDimensionDAO.js";
+import PerceptualDimensionDAO, {
+  PerceptualDimensionType,
+} from "../db/daos/PerceptualDimensionDAO.js";
 import { PerceptualDimension } from "../db/models/PerceptualDimension/perceptualDimension.valSchemas.js";
 import { Types } from "mongoose";
 import {
@@ -135,6 +137,23 @@ async function listPerceptualDimensionsForExperiment(
   res.status(httpStatusCodes.OK).json(responseData);
 }
 
+async function listAllPerceptualDimensionsOfType(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { type } = req.params;
+  const perceptualDimensions = await PerceptualDimensionDAO.findAllByType(
+    type as PerceptualDimensionType,
+  );
+  const responseData = {
+    msg: `Fetched all perceptualDimensions of type:${type}`,
+    perceptualDimensions,
+  };
+
+  logger.info(responseData.perceptualDimensions, responseData.msg);
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
 async function queryPerceptualDimensions(
   req: Request,
   res: Response,
@@ -181,5 +200,6 @@ export default {
   edit,
   remove,
   listPerceptualDimensionsForExperiment,
+  listAllPerceptualDimensionsOfType,
   queryPerceptualDimensions,
 };

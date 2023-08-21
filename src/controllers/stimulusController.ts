@@ -1,8 +1,15 @@
 import { Request, Response } from "express";
-import StimulusDAO, { OptionalStimulus } from "../db/daos/StimulusDAO.js";
+import StimulusDAO, {
+  OptionalStimulus,
+  StimulusType,
+} from "../db/daos/StimulusDAO.js";
 import { Stimulus } from "../db/models/Stimulus/stimulus.valSchemas.js";
 import { Types } from "mongoose";
-import { httpStatusCodes } from "../middleware/errors.js";
+import {
+  API_ERROR_TYPES,
+  ApiError,
+  httpStatusCodes,
+} from "../middleware/errors.js";
 import logger from "../middleware/logger.js";
 
 async function create(req: Request, res: Response): Promise<void> {
@@ -84,6 +91,24 @@ async function remove(req: Request, res: Response): Promise<void> {
   res.status(httpStatusCodes.OK).json(responseData);
 }
 
+async function getStimulusById(req: Request, res: Response): Promise<void> {
+  const { stimulusId } = req.params;
+  const stimulus = await StimulusDAO.findById(new Types.ObjectId(stimulusId));
+
+  if (!stimulus) {
+    throw new ApiError(API_ERROR_TYPES.NOT_FOUND, "Stimulus not found");
+  }
+
+  const responseData = {
+    msg: "Fetched the specified stimulus succesfully",
+    stimulus,
+  };
+
+  logger.info(responseData.stimulus, responseData.msg);
+
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
 async function listStimuliForExperiment(
   req: Request,
   res: Response,
@@ -100,6 +125,21 @@ async function listStimuliForExperiment(
   };
   logger.info(responseData.msg, responseData.stimuli);
 
+  res.status(httpStatusCodes.OK).json(responseData);
+}
+
+async function listAllStimuliOfType(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { type } = req.params;
+  const stimuli = await StimulusDAO.findAllByType(type as StimulusType);
+  const responseData = {
+    msg: `Fetched all stimuli of type:${type}`,
+    stimuli,
+  };
+
+  logger.info(responseData.stimuli, responseData.msg);
   res.status(httpStatusCodes.OK).json(responseData);
 }
 
@@ -142,6 +182,8 @@ export default {
   create,
   edit,
   remove,
+  getStimulusById,
   listStimuliForExperiment,
+  listAllStimuliOfType,
   queryStimuli,
 };
