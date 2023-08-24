@@ -14,6 +14,11 @@ async function getExperimentById(req: Request, res: Response): Promise<void> {
   const experiment = await ExperimentDAO.findById(
     new Types.ObjectId(experimentId),
   );
+
+  if (!experiment) {
+    throw new ApiError(API_ERROR_TYPES.NOT_FOUND, "Experiment not found");
+  }
+
   const responseData = {
     msg: `Fetched experiment with id:${experimentId} successfully`,
     experiment,
@@ -46,6 +51,13 @@ async function listExperimentsForExperimenter(
   // Get a list of all experiments created by the experimenter
   const experimenterId = req.sessionData._id; // Assuming you have this in your session
   const experiments = await ExperimentDAO.findAllByUser(experimenterId);
+
+  if (experiments.length === 0) {
+    throw new ApiError(
+      API_ERROR_TYPES.NO_DATA,
+      "No experiments exist for the specified experimenter",
+    );
+  }
 
   const responseData = {
     msg: "Fetched all active experiments",

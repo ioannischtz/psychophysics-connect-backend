@@ -1,11 +1,15 @@
 import fs from "fs";
 import path from "path";
+import "pino-pretty";
 import { pino } from "pino";
-import pinoPretty from "pino-pretty";
 import { isMainThread, Worker, workerData } from "worker_threads";
 import { __dirname, __filename, environment, logDir } from "../config.js";
 
 // Create directory if it is not present
+
+// const LogDir = `${__dirname}/logs`;
+//
+
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
@@ -24,6 +28,12 @@ if (isMainThread) {
 }
 
 // Create pino-http logger middleware with custom configuration
+// const loggerTransport = isMainThread
+//   ? environment === "development"
+//     ? pino.transport({ target: "pino-pretty" })
+//     : null
+//   : pino.transport({ target: workerData.logFilePath });
+
 const logger = pino({
   level: logLevel,
   timestamp: pino.stdTimeFunctions.isoTime,
@@ -38,6 +48,7 @@ const logger = pino({
       ? environment === "development" ? "pino-pretty" : null
       : workerData.logFilePath,
   },
+  /* transport: loggerTransport, */
 });
 
 export default logger;

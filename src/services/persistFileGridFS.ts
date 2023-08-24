@@ -10,7 +10,7 @@ import {
   isImageMIMEtype,
   isTextMIMEtype,
   TextMIMEtypes,
-} from "mimetypes.js";
+} from "../db/models/MediaAsset/MimeTypes.js";
 import logger from "../middleware/logger.js";
 import assert from "assert";
 

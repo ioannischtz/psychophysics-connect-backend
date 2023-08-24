@@ -14,7 +14,7 @@ import {
   ImageMIMEtypes,
   MIMEtypes,
   TextMIMEtypes,
-} from "mimetypes.js";
+} from "../db/models/MediaAsset/MimeTypes.js";
 import persistFileGridFS from "../services/persistFileGridFS.js";
 import { multerDestPath } from "../config.js";
 import deleteFileGridFS from "../services/deleteFileGridFS.js";

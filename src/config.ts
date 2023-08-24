@@ -1,9 +1,13 @@
 import path from "path";
 import { fileURLToPath } from "url";
 
-export const __filename = fileURLToPath(import.meta.url);
+export const __filename = global.__filename
+  ? global.__filename
+  : fileURLToPath(import.meta.url);
 
-export const __dirname = path.dirname(__filename);
+export const __dirname = global.__dirname
+  ? global.__dirname
+  : path.dirname(__filename);
 
 export const TIME_CONSTANTS = {
   DAY_HOURS: 24,
@@ -48,10 +52,9 @@ export const corsUrl = process.env.CORS_URL || DEFAULTS.CORS_URL;
 export const corsMaxage = parseInt(
   process.env.CORS_MAXAGE || DEFAULTS.CORS_MAXAGE,
 );
-export const corsMethods = process.env.CORS_METHODS || DEFAULTS.CORS_METHODS;
-export const corsHeaders = process.env.CORS_HEADERS || DEFAULTS.CORS_HEADERS;
-export const corsCredentials = process.env.CORS_CREDENTIALS ||
-  DEFAULTS.CORS_CREDENTIALS;
+export const corsMethods = DEFAULTS.CORS_METHODS;
+export const corsHeaders = DEFAULTS.CORS_HEADERS;
+export const corsCredentials = DEFAULTS.CORS_CREDENTIALS;
 
 export const timezone = process.env.TZONE || DEFAULTS.TZONE;
 export const jwtSecret = process.env.JWT_SECRET || DEFAULTS.JWT_SECRET;

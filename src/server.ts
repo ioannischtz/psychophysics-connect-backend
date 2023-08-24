@@ -1,11 +1,17 @@
 import express, { CookieOptions } from "express";
-import { dbConnection } from "./db/initDB.js";
+import "./db/initDB.js";
 import userRoutes from "./routes/users.js";
 import homepageRoutes from "./routes/homepage.js";
+import dashboardRoutes from "./routes/dashboard.js";
 import { environment, jwtSecret, port } from "./config.js";
-import bodyParser from "./middleware/bodyParser.js";
-import { Middleware } from "middleware.js";
 import createSession from "./middleware/session.js";
+import cors from "./middleware/cors.js";
+import errorHandler, { notFound } from "./middleware/errors.js";
+import compression from "./middleware/compression.js";
+import queryParser from "./middleware/queryParser.js";
+import rateLimiter from "./middleware/rateLimiter.js";
+import security from "./middleware/security.js";
+import responseTime from "./middleware/responseTime.js";
 
 const app = express();
 
@@ -28,14 +34,46 @@ const defaultSessionConfig = {
   secret: jwtSecret, // Use the jwtSecret from ../config.js
 };
 
+// Enable the compression middleware
+app.use(compression());
+
+// Enable the cors middleware
+app.use(cors());
+
+// Enable the rateLimiter
+// app.use(rateLimiter.inMemoryBlockMiddleware);
+
+// Enable the security middleware
+app.use(security());
+
+// Enable the queryParser middleware
+app.use(queryParser());
+
 // Enable the cookie/browser session middleware
 app.use(createSession(defaultSessionConfig));
+
+// Enable the response-time middleware
+app.use(
+  responseTime({
+    digits: 0,
+    doConvertToSecs: false,
+    includeMethod: true,
+    includePath: true,
+  }),
+);
 
 // Enable the api routes
 app.use("/api/users", userRoutes);
 app.use("/api/homepage", homepageRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/", (req, res) => res.send("Server up!"));
+
+// Forward 404 to error handler: notFound throws a new ApiError(NOT_FOUND)
+app.use(notFound);
+
+// Enable the error handler middleware
+app.use(errorHandler);
 
 app
   .listen(port, () => console.info(`Running on port:${port}`))

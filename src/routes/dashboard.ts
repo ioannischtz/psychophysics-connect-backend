@@ -506,3 +506,5 @@ router.delete(
   ),
   asyncHandler(mediaAssetController.remove),
 );
+
+export default router;

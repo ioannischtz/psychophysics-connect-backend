@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import { ExperimentSession } from "../db/models/ExperimentSession/experimentSession.valSchemas.js";
 import ExperimentSessionDAO, {
-  ExperimentSessionPopedExperiment,
-  ExperimentSessionPopedUser,
   ExperimentSessionPopulated,
   Subject,
 } from "../db/daos/ExperimentSessionDAO.js";
@@ -326,7 +324,7 @@ async function getResponsesByPerceptDim(
   };
   logger.info(responseData.msg, responseData.responses);
 
-  return res.status(httpStatusCodes.OK).json(responseData);
+  res.status(httpStatusCodes.OK).json(responseData);
 }
 
 async function getResponsesByPerceptDimAndExperiment(

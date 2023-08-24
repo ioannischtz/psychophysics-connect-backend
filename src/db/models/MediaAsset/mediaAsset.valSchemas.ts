@@ -1,6 +1,6 @@
-import { mimeTypes } from "mimetypes.js";
 import mongoose from "mongoose";
 import { z } from "zod";
+import { mimeTypes } from "./MimeTypes.js";
 
 const mediaAssetBaseSchema = z.object({
   mimetype: z.enum(mimeTypes).optional(),

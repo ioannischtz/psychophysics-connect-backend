@@ -5,7 +5,7 @@ import {
   isImageMIMEtype,
   isTextMIMEtype,
   TextMIMEtypes,
-} from "mimetypes.js";
+} from "../db/models/MediaAsset/MimeTypes.js";
 import { dbConnection } from "../db/initDB.js";
 import mongoose from "mongoose";
 import {

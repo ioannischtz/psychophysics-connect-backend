@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import { MediaAsset } from "./mediaAsset.valSchemas.js";
-import { mimeTypes } from "mimetypes.js";
+import { mimeTypes } from "./MimeTypes.js";
 
 export const DOCUMENT_NAME = "MediaAsset";
 export const COLLECTION_NAME = "media_assets";

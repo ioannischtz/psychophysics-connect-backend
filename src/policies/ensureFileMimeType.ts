@@ -6,7 +6,7 @@ import {
   isImageMIMEtype,
   isTextMIMEtype,
   TextMIMEtypes,
-} from "mimetypes.js";
+} from "../db/models/MediaAsset/MimeTypes.js";
 import {
   API_ERROR_TYPES,
   ApiError,

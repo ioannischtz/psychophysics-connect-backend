@@ -42,7 +42,7 @@ function getPopulateOptions() {
   ];
 }
 
-interface ExperimentPopulated extends
+export interface ExperimentPopulated extends
   Omit<
     Experiment,
     "experimenter" | "experimentSessions" | "stimuli" | "perceptualDimensions"
@@ -53,23 +53,23 @@ interface ExperimentPopulated extends
   perceptualDimensions: PerceptualDimensionPopulated[];
 }
 
-interface ExperimenterPopulated
+export interface ExperimenterPopulated
   extends Pick<Experimenter, "_id" | "username"> {}
 
-interface ExperimentSessionPopulated
+export interface ExperimentSessionPopulated
   extends Pick<ExperimentSession, "_id" | "experiment_step"> {}
 
-interface StimulusPopulated
+export interface StimulusPopulated
   extends Pick<Stimulus, "_id" | "title" | "type" | "description"> {
   mediaAsset: MediaAssetPopulated;
 }
 
-interface PerceptualDimensionPopulated
+export interface PerceptualDimensionPopulated
   extends Pick<PerceptualDimension, "_id" | "title" | "type" | "description"> {
   mediaAssets: MediaAssetPopulated[];
 }
 
-interface MediaAssetPopulated
+export interface MediaAssetPopulated
   extends Pick<MediaAsset, "_id" | "mimetype" | "filename"> {}
 
 async function create(experiment: Experiment): Promise<Experiment> {

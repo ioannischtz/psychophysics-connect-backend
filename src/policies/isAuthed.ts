@@ -1,10 +1,9 @@
-import { NextFunction, Request } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { User } from "../db/models/User/user.valSchemas.js";
 import { API_ERROR_TYPES, ApiError } from "../middleware/errors.js";
 import logger from "../middleware/logger.js";
 import { jwtSecret } from "../config.js";
-import { UserModel } from "../db/models/User/UserModel.js";
 import UserDAO from "../db/daos/UserDAO.js";
 import { Types } from "mongoose";
 

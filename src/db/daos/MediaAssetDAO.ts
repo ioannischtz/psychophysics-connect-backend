@@ -1,7 +1,7 @@
 import { Types } from "mongoose";
 import { MediaAssetModel } from "../models/MediaAsset/MediaAssetModel.js";
 import { MediaAsset } from "../models/MediaAsset/mediaAsset.valSchemas.js";
-import { MIMEtypes } from "mimetypes.js";
+import { MIMEtypes } from "../models/MediaAsset/MimeTypes.js";
 
 const MEDIAASSET_FIELDS = "_id mimetype filename";
 const STIMULI_FIELDS = "_id title type description";

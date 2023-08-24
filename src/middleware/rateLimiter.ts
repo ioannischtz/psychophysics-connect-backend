@@ -114,7 +114,7 @@ const inMemoryBlockMiddleware = (
   };
 };
 
-export {
+export default {
   consecutiveFailsByUsernameAndIPMiddleware,
   inMemoryBlockMiddleware,
   slowBruteByIPMiddleware,

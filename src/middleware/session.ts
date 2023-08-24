@@ -3,18 +3,7 @@ import cookieParser from "cookie-parser";
 import { deepmerge } from "deepmerge-ts";
 import { environment, jwtSecret } from "../config.js";
 
-type SessionData = Record<string, any>;
-
-declare global {
-  namespace Express {
-    interface Request {
-      sessionData: SessionData;
-    }
-    interface Response {
-      setSessionData(data: SessionData): void;
-    }
-  }
-}
+export type SessionData = Record<string, any>;
 
 const defaultSessionConfig = {
   key: "user.sess",
