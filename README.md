@@ -90,10 +90,8 @@ sound perception and related domains.
 
 ## API Documentation
 
-- [ ] TODO
-
-<!-- The API endpoints and their usage are documented in the -->
-<!-- [API Documentation](API_DOCS.md) file. -->
+The API endpoints and their usage are documented in the
+[API Documentation](API_DOCS.md) file.
 
 ## Testing
 
