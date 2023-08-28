@@ -1,6 +1,6 @@
 # Your Project Name
 
-[![License](https://img.shields.io/badge/License-GPL--2.0-blue.svg)](https://opensource.org/licenses/GPL-2.0)
+[![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://opensource.org/licenses/GPL-3.0)
 [![GitHub Stars](https://img.shields.io/github/stars/your-username/your-repo.svg)](https://github.com/ioannischtz/remote-psychophysics-backend/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/your-username/your-repo.svg)](https://github.com/ioannischtz/remote-psychophysics-backend/network/members)
 
@@ -129,7 +129,7 @@ Contributions are welcome! To contribute to this project:
 
 ## License
 
-This project is licensed under the [GNU General Public License v2.0](LICENSE).
+This project is licensed under the [GNU General Public License v3.0](LICENSE). 
 You are free to use, modify, and distribute the code as per the terms of this
 license.
 
