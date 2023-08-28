@@ -7,11 +7,7 @@ import {
   isTextMIMEtype,
   TextMIMEtypes,
 } from "../db/models/MediaAsset/MimeTypes.js";
-import {
-  API_ERROR_TYPES,
-  ApiError,
-  httpStatusCodes,
-} from "../middleware/errors.js";
+import { API_ERROR_TYPES, ApiError } from "../middleware/errors.js";
 
 function generateEnsureFileMimeType(
   mimetype: AudioMIMEtypes | ImageMIMEtypes | TextMIMEtypes,

@@ -16,6 +16,7 @@ const formatZodInnerError = (error: ZodError<any>): FormattedError[] => {
     };
     formattedErrors.push(formattedError);
   }
+  // console.log("formatZodInnerError, formattedErrors:", formattedErrors);
   return formattedErrors;
 };
 

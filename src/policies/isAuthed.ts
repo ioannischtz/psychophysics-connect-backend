@@ -24,10 +24,18 @@ function generateIsAuthedWithRole(role?: UserRoles | undefined) {
     res: Response,
     next: NextFunction,
   ): Promise<void> {
-    const userSessCookie = JSON.parse(req.signedCookies["user.sess"]);
-    const token = userSessCookie["token"];
+    let token = "";
+    try {
+      const userSessCookie = JSON.parse(req.signedCookies["user.sess"]);
+      token = userSessCookie["token"];
 
-    if (!token) {
+      if (!token) {
+        throw new ApiError(
+          API_ERROR_TYPES.UNAUTHORIZED,
+          "Not Authorized, no token",
+        );
+      }
+    } catch (error) {
       throw new ApiError(
         API_ERROR_TYPES.UNAUTHORIZED,
         "Not Authorized, no token",
@@ -49,20 +57,41 @@ function generateIsAuthedWithRole(role?: UserRoles | undefined) {
 
       if (role !== undefined && user.role !== role) {
         logger.info(`${role + " " + user.role}`);
+
         throw new ApiError(
           API_ERROR_TYPES.FORBIDDEN,
           "Access forbidden, role does not match",
         );
       }
 
-      req.sessionData._id = user._id;
-      req.sessionData.username = user.username;
-      req.sessionData.email = user.email;
-      req.sessionData.role = user.role;
+      if (!req.sessionData) {
+        req.sessionData = {
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        };
+      } else {
+        req.sessionData = {
+          ...req.sessionData,
+          _id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+        };
+      }
+
+      // req.sessionData._id = user._id;
+      // req.sessionData.username = user.username;
+      // req.sessionData.email = user.email;
+      // req.sessionData.role = user.role;
 
       next();
     } catch (error) {
       logger.error(error);
+      if (error instanceof ApiError) {
+        throw error;
+      }
       throw new ApiError(
         API_ERROR_TYPES.UNAUTHORIZED,
         "Not Authorized, token failed",

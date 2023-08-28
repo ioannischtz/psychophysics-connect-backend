@@ -13,7 +13,6 @@ import {
 } from "../../../src/middleware/errors.js";
 import { Types } from "mongoose";
 import { Experiment } from "../../../src/db/models/Experiment/experiment.valSchemas.js";
-import { mock } from "node:test";
 
 vi.mock("../../../src/middleware/logger.ts", () => {
   return {

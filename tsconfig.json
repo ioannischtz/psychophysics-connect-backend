@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ESNext", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
-    "module": "ESNext", /* Specify what module code is generated. */
+    "module": "NodeNext", /* Specify what module code is generated. */
     "lib": [
       "ESNext"
     ],
@@ -13,9 +13,10 @@
         "src/types/*"
       ]
     }, /* Specify a set of entries that re-map imports to additional lookup locations. */
-    // "types": [
-    //   "vitest/globals"
-    // ],
+    "types": [
+      // "vitest/globals",
+      "@types/supertest"
+    ],
     "resolveJsonModule": true, /* Enable importing .json files. */
     "allowJs": true, /* Allow JavaScript files to be a part of your program. Use the 'checkJS' option to get errors from these files. */
     "sourceMap": true, /* Create source map files for emitted JavaScript files. */

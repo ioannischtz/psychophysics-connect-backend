@@ -37,13 +37,17 @@ const createSession = (config?: any) => {
     }
 
     // Add a function to res to save session data
-    res.setSessionData = (data: SessionData) => {
+    res.setSessionData = (data?: SessionData | null) => {
       req.sessionData = data;
-      res.cookie(
-        mergedConfig.key,
-        JSON.stringify(data),
-        mergedConfig.cookieOpts,
-      );
+      if (data) {
+        res.cookie(
+          mergedConfig.key,
+          JSON.stringify(data),
+          mergedConfig.cookieOpts,
+        );
+      } else {
+        res.clearCookie(mergedConfig.key);
+      }
     };
 
     next();

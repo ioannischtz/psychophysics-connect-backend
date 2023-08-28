@@ -78,3 +78,5 @@ app.use(errorHandler);
 app
   .listen(port, () => console.info(`Running on port:${port}`))
   .on("error", (error) => console.error(error));
+
+export default app;

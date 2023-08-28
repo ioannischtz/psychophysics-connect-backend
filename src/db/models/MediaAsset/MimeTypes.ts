@@ -25,6 +25,7 @@ export function isAudioMIMEtype(mimetype: string): mimetype is AudioMIMEtypes {
 
 export const imageMimeTypes = [
   "image/bmp",
+  "image/jpeg",
   "image/gif",
   "image/png",
   "image/svg+xml",

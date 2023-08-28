@@ -32,7 +32,7 @@ async function register(req: Request, res: Response): Promise<void> {
     _id: new Types.ObjectId(),
     username,
     email,
-    password: await bcrypt.hash(password, 10), // Password hashing is automatically handled by pre-save hook
+    password: await bcrypt.hash(password, 10),
     role,
   });
 
@@ -102,7 +102,7 @@ async function login(req: Request, res: Response): Promise<void> {
 
 async function logout(req: Request, res: Response): Promise<void> {
   // Clear the user's session data by setting it to an empty object
-  res.setSessionData({});
+  res.setSessionData(null);
 
   const responseData = {
     msg: "Logout successful",

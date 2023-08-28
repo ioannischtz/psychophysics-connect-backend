@@ -14,10 +14,18 @@ const router = express.Router();
 // @method   POST
 // @desc     Signup a new user
 // @access   Public
+const createUserSchema = userSchemas.createUserSchema
+  .pick({
+    username: true,
+    email: true,
+    password: true,
+    role: true,
+  })
+  .required();
 router.post(
   "/signup",
   express.urlencoded({ limit: "2kb", parameterLimit: 4, extended: false }),
-  isValidReq(userSchemas.createUserSchema),
+  isValidReq(createUserSchema),
   asyncHandler(userController.register),
 );
 
