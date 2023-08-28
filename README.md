@@ -1,4 +1,4 @@
-# Your Project Name
+# REMOTE-PSYCHOPHYSICS backend
 
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://opensource.org/licenses/GPL-3.0)
 [![GitHub Stars](https://img.shields.io/github/stars/your-username/your-repo.svg)](https://github.com/ioannischtz/remote-psychophysics-backend/stargazers)
