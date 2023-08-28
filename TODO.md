@@ -43,13 +43,21 @@
 
 ## CONTROLLERS
 
+- [x]
+
 ## ROUTES
 
 - [x] Users
-- [ ] Dashboard
-- [ ] ExperimentSession
-- [ ] MediaAssets
+- [x] Dashboard
+- [x] Homepage
 
 ## SERVICES
 
+- [x]
+
 ## TESTS
+
+- [x] Unit tests for `experimentController`
+- [x] Integration tests for `userRoutes`
+- [x] Unit tests for `policies`
+- [x] Unit tests for `generateShuffledIndexes` service
