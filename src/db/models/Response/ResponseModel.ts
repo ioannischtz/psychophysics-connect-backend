@@ -24,7 +24,7 @@ export const responseSchema = new Schema<Response>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 

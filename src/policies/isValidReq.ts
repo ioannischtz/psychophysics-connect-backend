@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { Types } from "mongoose";
-import { AnyZodObject, z, ZodEffects } from "zod";
+import { AnyZodObject, z, ZodError } from "zod";
 
-const VALIDATION_SOURCE = {
+export const VALIDATION_SOURCE = {
   BODY: "body",
   HEADER: "header",
   QUERY: "query",
@@ -56,8 +56,8 @@ function isValidReq(
       schema.parse(req[validationSource]);
       next();
     } catch (error: any) {
-      console.error(error);
-      return res.status(400).send(error.erros);
+      // logger.error(error);
+      throw new ZodError(error);
     }
   };
 }

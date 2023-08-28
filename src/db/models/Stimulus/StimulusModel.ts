@@ -6,25 +6,28 @@ export const COLLECTION_NAME = "stimuli";
 
 const stimulusSchema = new Schema<Stimulus>(
   {
-    title: { type: Schema.Types.String, required: true },
+    title: { type: Schema.Types.String },
     type: {
       type: Schema.Types.String,
       enum: ["text", "img", "audio"],
-      required: true,
     },
-    description: { type: Schema.Types.String, required: false },
+    description: { type: Schema.Types.String },
     mediaAsset: {
       type: Schema.Types.ObjectId,
       ref: "MediaAsset",
-      required: true,
     },
     experiments: [{ type: Schema.Types.ObjectId, ref: "Experiment" }],
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
+
+stimulusSchema.index({ _id: 1 });
+stimulusSchema.index({ title: 1 });
+stimulusSchema.index({ type: 1 });
+stimulusSchema.index({ mediaAsset: 1 });
 
 export const StimulusModel = model<Stimulus>(
   DOCUMENT_NAME,

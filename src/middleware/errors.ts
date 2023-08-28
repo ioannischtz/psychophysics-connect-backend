@@ -142,23 +142,13 @@ export class ApiError extends Error {
           .json(err.formatErrorToJSON(err.type, error));
       }
       case API_ERROR_TYPES.PAGINATION_ERROR:
-      case API_ERROR_TYPES.ZOD_VALIDATION_ERROR:
+      case API_ERROR_TYPES.VALIDATION_ERROR:
       case API_ERROR_TYPES.BAD_REQUEST: {
         error = new createHttpError.BadRequest(err.message);
         return res
           .status(error.status)
           .json(err.formatErrorToJSON(err.type, error));
       }
-      case API_ERROR_TYPES.VALIDATION_ERROR: {
-        if (err instanceof ZodError) {
-          const { errors, message: zodMessage } = formatZodErrors(err);
-          error = new createHttpError.BadRequest(err.message);
-          return res
-            .status(error.status)
-            .json(err.formatErrorToJSON(err.type, error, { errors }));
-        }
-      }
-      case API_ERROR_TYPES.POLICY_ERROR:
       case API_ERROR_TYPES.FORBIDDEN: {
         error = new createHttpError.Forbidden(err.message);
         return res
@@ -195,17 +185,14 @@ export class ApiError extends Error {
     details?: object,
   ) {
     return {
-      status: httpError.status,
-      body: {
-        data: null,
-        error: {
-          status: httpError.status,
-          name: apiErrorName,
-          httpErrorName: httpError.name,
-          message: httpError.message,
-          ...(details && { details: details }), // Conditionally include the 'details' property
-          ...(httpError.stack && { stack: httpError.stack }), // Conditionally include the 'stack' property
-        },
+      data: null,
+      error: {
+        status: httpError.status,
+        name: apiErrorName,
+        httpErrorName: httpError.name,
+        message: httpError.message,
+        ...(details && { details: details }), // Conditionally include the 'details' property
+        ...(httpError.stack && { stack: httpError.stack }), // Conditionally include the 'stack' property
       },
     };
   }
@@ -225,6 +212,20 @@ export default function errorHandler(
   res: Response,
   next: NextFunction,
 ) {
+  // console.log("errorHandler: err= ", err);
+  err.stack = environment === "production" ? undefined : err.stack;
+  if (err.name === "ZodError") {
+    const { errors, message: zodMessage } = formatZodErrors(
+      JSON.parse(err.message) as ZodError,
+    );
+    const error = new createHttpError.BadRequest(err.message);
+    const apiErrorInstance = new ApiError(API_ERROR_TYPES.VALIDATION_ERROR);
+    res.status(error.status).json(
+      apiErrorInstance.formatErrorToJSON(apiErrorInstance.type, error, {
+        errors,
+      }),
+    );
+  }
   res.statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   err.message = err.message;
   // Use the custom type guard to check for 'kind' property
@@ -232,23 +233,26 @@ export default function errorHandler(
     res.statusCode = 404;
     err.message = "Resource Not Found";
   }
-  err.stack = environment === "production" ? undefined : err.stack;
+
   if (err instanceof ApiError) {
-    ApiError.handle(err, res);
+    res.send(ApiError.handle(err, res));
     if (err.type === API_ERROR_TYPES.INTERNAL) {
       console.error(
         `500 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`,
       );
     }
   } else {
+    console.log(err);
     console.error(
       `500 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`,
     );
     console.error(err);
     if (environment === "development") return res.status(500).send(err);
-    ApiError.handle(
-      new ApiError(API_ERROR_TYPES.INTERNAL, "Internal Error"),
-      res,
+    res.send(
+      ApiError.handle(
+        new ApiError(API_ERROR_TYPES.INTERNAL, "Internal Error"),
+        res,
+      ),
     );
   }
 }

@@ -13,10 +13,10 @@ const responseBaseSchema = object({
 
 export const responseSchemaWithId = responseBaseSchema.merge(
   object({
-    _id: z.string().optional(),
+    _id: z.custom<mongoose.Types.ObjectId>(),
   }),
 );
 
-export type Response = z.infer<typeof responseSchemaWithId>;
+export interface Response extends z.infer<typeof responseSchemaWithId> {}
 
 export default { createResponse: responseBaseSchema };

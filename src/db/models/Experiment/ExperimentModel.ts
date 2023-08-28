@@ -6,10 +6,10 @@ export const COLLECTION_NAME = "experiments";
 
 const experimentSchema = new Schema<Experiment>(
   {
-    title: { type: Schema.Types.String, required: true },
-    description: { type: Schema.Types.String, required: true },
-    isActive: { type: Schema.Types.Boolean, required: true },
-    experimenter: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    title: { type: Schema.Types.String },
+    description: { type: Schema.Types.String },
+    isActive: { type: Schema.Types.Boolean },
+    experimenter: { type: Schema.Types.ObjectId, ref: "User" },
     experimentSessions: [
       { type: Schema.Types.ObjectId, ref: "ExperimentSession" },
     ],
@@ -20,9 +20,15 @@ const experimentSchema = new Schema<Experiment>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
+
+experimentSchema.index({ _id: 1 });
+experimentSchema.index({ title: 1 });
+experimentSchema.index({ experimenter: 1 });
+experimentSchema.index({ isActive: 1 });
+experimentSchema.index({ experimenter: 1, isActive: 1 });
 
 export const ExperimentModel = model<Experiment>(
   DOCUMENT_NAME,

@@ -30,13 +30,16 @@
 
 ## DB - DAOs
 
-- [ ] User
-- [ ] ExperimentSession
-- [ ] Experiment
-- [ ] MediaAsset
-- [ ] Response
-- [ ] Stimulus
-- [ ] PerceptualDimension
+- [x] FIELDS constants: maybe return \_id as well? or is it returned
+      automatically by default?
+
+- [x] User
+- [x] ExperimentSession
+- [x] Experiment
+- [x] MediaAsset
+- [x] Response
+- [x] Stimulus
+- [x] PerceptualDimension
 
 ## CONTROLLERS
 

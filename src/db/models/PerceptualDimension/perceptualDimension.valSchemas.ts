@@ -2,29 +2,29 @@ import { array, object, string, z } from "zod";
 import mongoose from "mongoose";
 
 const perceptualDimensionBaseSchema = object({
-  title: string().nonempty(),
+  title: string().nonempty().optional(),
   type: z.enum(["text", "img", "audio"]),
   description: string().optional(),
-  mediaAssets: array(z.custom<mongoose.Types.ObjectId>()),
-  experiments: array(z.custom<mongoose.Types.ObjectId>()),
+  mediaAssets: array(z.custom<mongoose.Types.ObjectId>()).default([]),
+  experiments: array(z.custom<mongoose.Types.ObjectId>()).default([]),
 });
 
 export const perceptualDimensionSchemaWithId = perceptualDimensionBaseSchema
   .merge(
     object({
-      _id: string().optional(),
+      _id: z.custom<mongoose.Types.ObjectId>(),
     }),
   );
 
-export type PerceptualDimension = z.infer<
-  typeof perceptualDimensionSchemaWithId
->;
+export interface PerceptualDimension
+  extends z.infer<typeof perceptualDimensionSchemaWithId> {}
 
 const createperceptualDimension = perceptualDimensionBaseSchema.pick({
   title: true,
   type: true,
   description: true,
   mediaAsset: true,
+  experiments: true,
 });
 
 export default { createperceptualDimension };

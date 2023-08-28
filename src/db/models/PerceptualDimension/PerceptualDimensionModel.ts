@@ -6,7 +6,7 @@ export const COLLECTION_NAME = "perceptual_dimensions";
 
 const perceptualDimensionSchema = new Schema<PerceptualDimension>(
   {
-    title: { type: Schema.Types.String, required: true },
+    title: { type: Schema.Types.String },
     type: {
       type: Schema.Types.String,
       enum: ["text", "img", "audio"],
@@ -17,16 +17,18 @@ const perceptualDimensionSchema = new Schema<PerceptualDimension>(
       {
         type: Schema.Types.ObjectId,
         ref: "MediaAsset",
-        required: true,
       },
     ],
     experiments: [{ type: Schema.Types.ObjectId, ref: "Experiment" }],
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
+
+perceptualDimensionSchema.index({ title: 1 });
+perceptualDimensionSchema.index({ type: 1 });
 
 export const PerceptualDimensionModel = model<PerceptualDimension>(
   DOCUMENT_NAME,

@@ -2,8 +2,8 @@ import { Types } from "mongoose";
 import { UserModel } from "../models/User/UserModel.js";
 import { User } from "../models/User/user.valSchemas.js";
 
-type UserQueryOptions = Pick<User, "role" | "username">;
-type UserFieldOptions = (keyof Partial<User>)[];
+export type UserQueryOptions = Partial<Pick<User, "role" | "username">>;
+export type UserFieldOptions = (keyof Partial<User>)[];
 
 function isFieldObjectID(
   field: Types.ObjectId | string,
@@ -67,11 +67,12 @@ async function findWithCriticalByEmail(email: string): Promise<User | null> {
 // lean version
 async function findWithCriticalByEmailLean(
   email: string,
-): Promise<User | null> {
-  return UserModel.findOne({ email: email })
+): Promise<Required<User> | null> {
+  const result = await UserModel.findOne({ email: email })
     .select("+email +password +role")
     .lean()
     .exec();
+  return result as Required<User> | null;
 }
 
 async function findFieldsById(
@@ -111,11 +112,15 @@ async function deleteById(id: Types.ObjectId): Promise<boolean> {
 // ---- Many -----
 // ---------------
 
-async function findManyByRole(role: Pick<User, "role">): Promise<User[]> {
+async function findManyByRole(
+  role: Pick<User, "role">["role"],
+): Promise<User[]> {
   return UserModel.find({ role }).exec();
 }
 // lean version
-async function findManyByRoleLean(role: Pick<User, "role">): Promise<User[]> {
+async function findManyByRoleLean(
+  role: Pick<User, "role">["role"],
+): Promise<User[]> {
   return UserModel.find({ role }).lean().exec();
 }
 
@@ -150,3 +155,24 @@ async function findManyByQueryLean(
   const users = await query.lean().exec();
   return users;
 }
+
+export default {
+  userExists,
+  findPrivateById,
+  findPrivateByIdLean,
+  findPublicById,
+  findPublicByIdLean,
+  findWithCriticalById,
+  findWithCriticalByIdLean,
+  findWithCriticalByEmail,
+  findWithCriticalByEmailLean,
+  findFieldsById,
+  findFieldsByIdLean,
+  create,
+  update,
+  deleteById,
+  findManyByRole,
+  findManyByRoleLean,
+  findManyByQuery,
+  findManyByQueryLean,
+};

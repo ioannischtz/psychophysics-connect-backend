@@ -11,19 +11,16 @@ const userSchema = new Schema<User>(
       type: Schema.Types.String,
       trim: true,
       maxlength: 100,
-      required: true,
     },
     email: {
       type: Schema.Types.String,
       trim: true,
       unique: true,
       sparse: true, // allow null
-      required: true,
       select: false,
     },
     password: {
       type: Schema.Types.String,
-      required: true,
       select: false,
     },
     role: {
@@ -35,16 +32,19 @@ const userSchema = new Schema<User>(
   },
   {
     timestamps: true,
-    versionKey: true,
+    versionKey: false,
   },
 );
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-  this.password = await bcrypt.hash(this.password, 10);
-});
+// userSchema.pre("save", async function (next) {
+//   if (!this.password) {
+//     throw new Error("the password is undefined");
+//   }
+//   if (!this.isModified("password")) {
+//     next();
+//   }
+//   this.password = await bcrypt.hash(this.password, 10);
+// });
 
 userSchema.index({ email: 1 }, { unique: true });
 

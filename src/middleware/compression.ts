@@ -237,6 +237,7 @@ export default (
         Number(res.getHeader("Content-Length") as string) < Number(threshold))
     ) {
       next();
+      return;
     }
 
     // get the preferred content encoding
@@ -247,7 +248,10 @@ export default (
     const encoding = encodings.getPrefferedContentEncoding();
 
     // if identity === no compression
-    if (encoding === "identity") next();
+    if (encoding === "identity") {
+      next();
+      return;
+    }
 
     /** begin compression logic **/
 
@@ -261,10 +265,11 @@ export default (
     const stream = compress(encodingOptions[encoding]);
     if (req.body instanceof Stream) {
       req.body.pipe(stream).pipe(res);
-      next();
+      // next();
+      return;
     }
     stream.end(req.body);
     stream.pipe(res);
-    next();
+    // next();
   }
 };
