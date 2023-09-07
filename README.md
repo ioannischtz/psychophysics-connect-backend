@@ -1,10 +1,10 @@
-# REMOTE-PSYCHOPHYSICS backend
+# PSYCHOPHYSICS-CONNECT backend
 
 [![License](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](https://opensource.org/licenses/GPL-3.0)
-[![GitHub Stars](https://img.shields.io/github/stars/your-username/your-repo.svg)](https://github.com/ioannischtz/remote-psychophysics-backend/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/your-username/your-repo.svg)](https://github.com/ioannischtz/remote-psychophysics-backend/network/members)
+[![GitHub Stars](https://img.shields.io/github/stars/your-username/your-repo.svg)](https://github.com/ioannischtz/psychophysics-connect-backend/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/your-username/your-repo.svg)](https://github.com/ioannischtz/psychophysics-connect-backend/network/members)
 
-Backend server for the `remote-psychophysics` app, built with Node.js,
+Backend server for the `psychophysics-connect` app, built with Node.js,
 Express.js, and MongoDB/Mongoose. This project provides JWT authentication for
 secure endpoints and handles audio streaming.
 
@@ -33,7 +33,7 @@ secure endpoints and handles audio streaming.
 1. Clone the repository.
 
    ```bash
-   git clone https://github.com/ioannischtz/remote-psychophysics-backend.git
+   git clone https://github.com/ioannischtz/psychophysics-connect-backend.git
    ```
 
 2. Install dependencies.
@@ -134,4 +134,4 @@ license.
 ## Contact
 
 - Ioannis-chtz: ioannischtz@gmail.com
-- Project Link: https://github.com/ioannischtz/remote-psychophysics-backend
+- Project Link: https://github.com/ioannischtz/psychophysics-connect-backend
