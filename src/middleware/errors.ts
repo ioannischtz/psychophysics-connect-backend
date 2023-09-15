@@ -137,17 +137,15 @@ export class ApiError extends Error {
       case API_ERROR_TYPES.NO_ENTRY:
       case API_ERROR_TYPES.NO_DATA: {
         error = new createHttpError.NotFound(err.message);
-        return res
-          .status(error.status)
-          .json(err.formatErrorToJSON(err.type, error));
+        const errorJSON = err.formatErrorToJSON(err.type, error);
+        return res.status(error.status).json(errorJSON);
       }
       case API_ERROR_TYPES.PAGINATION_ERROR:
       case API_ERROR_TYPES.VALIDATION_ERROR:
       case API_ERROR_TYPES.BAD_REQUEST: {
         error = new createHttpError.BadRequest(err.message);
-        return res
-          .status(error.status)
-          .json(err.formatErrorToJSON(err.type, error));
+        const errorJSON = err.formatErrorToJSON(err.type, error);
+        return res.status(error.status).json(errorJSON);
       }
       case API_ERROR_TYPES.FORBIDDEN: {
         error = new createHttpError.Forbidden(err.message);
@@ -199,11 +197,10 @@ export class ApiError extends Error {
 }
 
 export function notFound(req: Request, res: Response, next: NextFunction) {
-  const error = new ApiError(
+  throw new ApiError(
     API_ERROR_TYPES.NOT_FOUND,
     `API Endpoint Not Found: ${req.originalUrl}`,
   );
-  next(error);
 }
 
 export default function errorHandler(
@@ -212,7 +209,6 @@ export default function errorHandler(
   res: Response,
   next: NextFunction,
 ) {
-  // console.log("errorHandler: err= ", err);
   err.stack = environment === "production" ? undefined : err.stack;
   if (err.name === "ZodError") {
     const { errors, message: zodMessage } = formatZodErrors(
@@ -235,7 +231,7 @@ export default function errorHandler(
   }
 
   if (err instanceof ApiError) {
-    res.send(ApiError.handle(err, res));
+    ApiError.handle(err, res);
     if (err.type === API_ERROR_TYPES.INTERNAL) {
       console.error(
         `500 - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`,
@@ -248,11 +244,9 @@ export default function errorHandler(
     );
     console.error(err);
     if (environment === "development") return res.status(500).send(err);
-    res.send(
-      ApiError.handle(
-        new ApiError(API_ERROR_TYPES.INTERNAL, "Internal Error"),
-        res,
-      ),
+    ApiError.handle(
+      new ApiError(API_ERROR_TYPES.INTERNAL, "Internal Error"),
+      res,
     );
   }
 }
