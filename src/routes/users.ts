@@ -7,6 +7,7 @@ import isAuthed, {
   isAuthedExperimenter,
   isAuthedSubject,
 } from "../policies/isAuthed.js";
+import multer from "multer";
 
 const router = express.Router();
 
@@ -22,9 +23,13 @@ const createUserSchema = userSchemas.createUserSchema
     role: true,
   })
   .required();
+
+const authFormUpload = multer();
+
 router.post(
   "/signup",
-  express.urlencoded({ limit: "2kb", parameterLimit: 4, extended: false }),
+  // express.urlencoded({ limit: "2kb", parameterLimit: 4, extended: true }),
+  authFormUpload.none(),
   isValidReq(createUserSchema),
   asyncHandler(userController.register),
 );
